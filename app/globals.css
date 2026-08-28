@@ -1,0 +1,441 @@
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --text: #1b1b1f;
+  --muted: #6b6b76;
+  --border: #e4e2dd;
+  --accent: #2f3e8f;
+  --accent-soft: #eceffb;
+  --rare: #b8860b;
+  --nav-h: 64px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans',
+    'Noto Sans JP', 'Yu Gothic', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 20px 16px calc(var(--nav-h) + 28px);
+  background: var(--bg);
+}
+
+/* ---- ダミーデータ警告 ---- */
+.dummy-banner {
+  background: #fff4d6;
+  border: 1px solid #e8d08a;
+  color: #6b5310;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* ---- 見出し ---- */
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.page-lead {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+/* ---- オンボーディング ---- */
+.spot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.spot-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.spot-chip[data-selected='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---- 踏破率 ---- */
+.rate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.rate-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.rate-value {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.rate-value span {
+  font-size: 24px;
+  margin-left: 2px;
+}
+
+.rate-sub {
+  font-size: 14px;
+  color: var(--text);
+  margin: 12px 0 0;
+}
+
+.rate-sub strong {
+  font-size: 18px;
+  color: var(--accent);
+}
+
+/* ---- 横並び比較（アハの発火点） ---- */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.compare-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 10px;
+}
+
+.compare-head {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-head.accent {
+  color: var(--accent);
+}
+
+.compare-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 0;
+}
+
+.compare-name {
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.compare-count {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.compare-count.big {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.compare-count.small {
+  font-size: 15px;
+  color: var(--accent);
+}
+
+.compare-note {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+.compare-note strong {
+  display: block;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+/* ---- ボタン ---- */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  background: #b9bcd0;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 12px;
+}
+
+/* ---- 条件選択 ---- */
+.field {
+  margin-bottom: 18px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.option[data-selected='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---- スポットカード ---- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.card-photo {
+  height: 140px;
+  background: linear-gradient(135deg, #dfe3f2, #eceffb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9aa0bd;
+  font-size: 12px;
+}
+
+.card-body {
+  padding: 14px 16px 16px;
+}
+
+.card-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.card-area {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 2px 0 10px;
+}
+
+.card-stats {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* 口コミ件数の対比＝アハの本体（要件定義書 §5 F-03） */
+.contrast {
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.contrast strong {
+  display: block;
+  color: var(--accent);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.rarity {
+  color: var(--rare);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.recommender {
+  border-left: 3px solid var(--border);
+  padding-left: 10px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.recommender-note {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sm {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btn-sm[data-done='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---- 投稿フォーム ---- */
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.notice {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 40px 20px;
+}
+
+/* ---- ボトムナビ ---- */
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav a[data-active='true'] {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.nav-icon {
+  font-size: 18px;
+  line-height: 1;
+}
