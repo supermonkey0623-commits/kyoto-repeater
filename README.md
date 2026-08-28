@@ -2,6 +2,11 @@
 
 関西ビギナーズハッカソン vol.8（2026-08-28〜30 / 京都）
 
+**デモURL**: https://kyoto-repeater.vercel.app/ （ログイン不要・スマホ推奨）
+**リポジトリ**: https://github.com/supermonkey0623-commits/kyoto-repeater
+
+QRコード: `kyoto-repeater-qr.png`
+
 **「有名じゃない順」に並べる発見アプリ。**
 
 何度も京都に来ているリピーターは、有名観光地を行き尽くしている。
@@ -22,7 +27,7 @@
 | F-04 提案結果 | `/suggest` | 動作（ダミー） |
 | F-05 消費ログ（行った／気になる／違う） | `/suggest` | localStorage に保存 |
 | F-06 気になるリスト | `/saved` | 動作 |
-| F-07 公開（Vercel / GitHub） | — | **未着手** |
+| F-07 公開（Vercel / GitHub） | — | 完了 |
 | F-08 写真表示 | — | 未実装 |
 
 ## 起動

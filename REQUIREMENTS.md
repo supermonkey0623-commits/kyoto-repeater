@@ -125,7 +125,7 @@
 | F-04 | 提案結果の表示 | Must | 実装済 |
 | F-05 | 消費ログ（行った／気になる／違う） | Must | 実装済 |
 | F-06 | 気になるリスト | Should | 実装済 |
-| F-07 | 公開（Vercel + GitHub public） | Must | **未着手** |
+| F-07 | 公開（Vercel + GitHub public） | Must | 完了 |
 | F-09 | 現在地から徒歩◯分の提案 | Should | **未着手** |
 | F-08 | 写真表示 | Could | 未実装 |
 
