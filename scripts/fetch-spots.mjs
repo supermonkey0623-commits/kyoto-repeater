@@ -20,13 +20,31 @@ const ROOT = join(__dirname, '..');
 function loadKey() {
   if (process.env.GOOGLE_MAPS_API_KEY) return process.env.GOOGLE_MAPS_API_KEY;
   const envPath = join(ROOT, '.env.local');
-  if (existsSync(envPath)) {
-    const line = readFileSync(envPath, 'utf8')
-      .split('\n')
-      .find((l) => l.trim().startsWith('GOOGLE_MAPS_API_KEY='));
-    if (line) return line.split('=').slice(1).join('=').trim();
+  if (!existsSync(envPath)) return null;
+
+  // PowerShell の `>` は UTF-16LE で書き込むため、BOMを見て読み分ける。
+  const buf = readFileSync(envPath);
+  let text;
+  if (buf[0] === 0xff && buf[1] === 0xfe) {
+    text = buf.toString('utf16le');
+  } else if (buf[0] === 0xfe && buf[1] === 0xff) {
+    text = buf.swap16().toString('utf16le');
+  } else {
+    text = buf.toString('utf8');
   }
-  return null;
+  text = text.replace(/^﻿/, ''); // UTF-8 BOM を除去
+
+  const line = text
+    .split(/\r?\n/)
+    .find((l) => l.trim().startsWith('GOOGLE_MAPS_API_KEY='));
+  if (!line) return null;
+
+  return line
+    .split('=')
+    .slice(1)
+    .join('=')
+    .trim()
+    .replace(/^["']|["']$/g, ''); // 前後のクォートを除去
 }
 
 const API_KEY = loadKey();
