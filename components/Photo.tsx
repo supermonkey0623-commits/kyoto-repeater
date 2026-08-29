@@ -23,11 +23,13 @@ function hashOf(text: string): number {
 export default function Photo({
   id,
   hasPhoto,
+  photoKind,
   alt,
   ratio = 'card',
 }: {
   id: string;
   hasPhoto?: boolean;
+  photoKind?: 'ai' | 'real';
   alt: string;
   ratio?: 'card' | 'wide';
 }) {
@@ -35,16 +37,21 @@ export default function Photo({
 
   if (hasPhoto) {
     return (
-      // next/image ではなく img を使う。写真は事前に縮小して置く運用のため、
-      // 最適化サーバーを挟まないほうが会場の回線では速い。
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        className={className}
-        src={`/photos/${id}.jpg`}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-      />
+      <span className={ratio === 'wide' ? 'photo-slot wide' : 'photo-slot'}>
+        {/* next/image ではなく img を使う。写真は事前に縮小して置く運用のため、
+            最適化サーバーを挟まないほうが会場の回線では速い。 */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className={className}
+          src={`/photos/${id}.jpg`}
+          alt={photoKind === 'ai' ? `${alt}（イメージ画像）` : alt}
+          loading="lazy"
+          decoding="async"
+        />
+        {/* 実写に差し替えたら photoKind を 'real' にする。
+            変え忘れてもこのバッジが残るので、実写だと誤解される事故は起きない */}
+        {photoKind === 'ai' && <span className="ai-badge">イメージ</span>}
+      </span>
     );
   }
 

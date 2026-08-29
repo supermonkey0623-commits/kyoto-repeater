@@ -15,7 +15,12 @@ export default function PostCard({ post, saved, unlocked, onToggleSave }: Props)
   return (
     <article className="post-card">
       <Link href={`/post/${post.id}`} className="post-link">
-        <Photo id={post.id} hasPhoto={post.hasPhoto} alt={post.title} />
+        <Photo
+          id={post.id}
+          hasPhoto={post.hasPhoto}
+          photoKind={post.photoKind}
+          alt={post.title}
+        />
         <div className="post-body">
           <span className="post-tag">{post.tag}</span>
           <h3 className="post-title">{post.title}</h3>

@@ -24,6 +24,15 @@ export type Post = {
   costPt: number;
   /** public/photos/<id>.jpg を置いたら true にする。false ならグラデーションで埋める */
   hasPhoto?: boolean;
+  /**
+   * 写真の種類。
+   * 'ai'  … AI生成のイメージ画像。画面に「イメージ」バッジが出る
+   * 'real'… 実際に撮った写真。バッジは出ない
+   *
+   * ★差し替えたら必ず 'real' に変えること。
+   *   変え忘れるとバッジが残るので、公開URLに嘘が出たままにはならない。
+   */
+  photoKind?: 'ai' | 'real';
 };
 
 export const POSTS: Post[] = [

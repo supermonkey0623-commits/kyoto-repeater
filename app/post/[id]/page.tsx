@@ -87,6 +87,7 @@ export default function PostDetailPage() {
       <Photo
         id={post.id}
         hasPhoto={post.hasPhoto}
+        photoKind={post.photoKind}
         alt={post.title}
         ratio="wide"
       />
