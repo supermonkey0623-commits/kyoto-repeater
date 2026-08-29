@@ -42,6 +42,8 @@ export type Post = {
   hasPhoto?: boolean;
   /** 'ai' なら画面に「イメージ」バッジが出る。実写は 'real' */
   photoKind?: 'ai' | 'real';
+  /** ユーザー投稿の写真（縮小済みデータURL）。あればこちらを表示する */
+  photoDataUrl?: string;
 };
 
 export const POSTS: Post[] = [

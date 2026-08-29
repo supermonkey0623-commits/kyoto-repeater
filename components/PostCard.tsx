@@ -19,6 +19,7 @@ export default function PostCard({ post, saved, unlocked, onToggleSave }: Props)
           id={post.id}
           hasPhoto={post.hasPhoto}
           photoKind={post.photoKind}
+          src={post.photoDataUrl}
           alt={post.title}
         />
         <div className="post-body">

@@ -10,18 +10,22 @@ import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
 import { getSaved, getUnlocked, toggleSaved } from '@/lib/points';
+import { UserPost, getUserPosts } from '@/lib/userPosts';
 
 export default function HomePage() {
   const [saved, setSaved] = useState<string[]>([]);
   const [unlocked, setUnlocked] = useState<string[]>([]);
+  const [mine, setMine] = useState<UserPost[]>([]);
 
   useEffect(() => {
     setSaved(getSaved());
     setUnlocked(getUnlocked());
+    setMine(getUserPosts());
   }, []);
 
-  // カテゴリの絞り込みはかんたん検索側に集約したので、ここでは全件を出す
-  const posts = POSTS;
+  // カテゴリの絞り込みはかんたん検索側に集約したので、ここでは全件を出す。
+  // 自分の投稿は新しいので先頭に置く。
+  const posts = [...mine, ...POSTS];
 
   return (
     <main>

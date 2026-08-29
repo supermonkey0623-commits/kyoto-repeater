@@ -9,7 +9,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
-import { getPost } from '@/lib/posts';
+import { Post, getPost } from '@/lib/posts';
+import { getUserPosts } from '@/lib/userPosts';
 import {
   getBalance,
   getReacted,
@@ -23,7 +24,11 @@ import {
 export default function PostDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const post = getPost(params.id);
+
+  // 自分の投稿は localStorage にあるので、初期表示では見つからない。
+  // 描画後に探し直す。
+  const [post, setPost] = useState<Post | undefined>(() => getPost(params.id));
+  const [ready, setReady] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
@@ -32,14 +37,19 @@ export default function PostDetailPage() {
   const [shortfall, setShortfall] = useState(false);
 
   useEffect(() => {
-    if (!post) return;
-    setOpen(isUnlocked(post.id));
+    const found =
+      getPost(params.id) ?? getUserPosts().find((p) => p.id === params.id);
+    setPost(found);
+    setReady(true);
+    if (!found) return;
+    setOpen(isUnlocked(found.id));
     setBalance(getBalance());
     setReacted(getReacted());
     setSaved(getSaved());
-  }, [post]);
+  }, [params.id]);
 
   if (!post) {
+    if (!ready) return <main />;
     return (
       <main>
         <p className="empty">投稿が見つかりませんでした。</p>
@@ -86,6 +96,7 @@ export default function PostDetailPage() {
         id={post.id}
         hasPhoto={post.hasPhoto}
         photoKind={post.photoKind}
+        src={post.photoDataUrl}
         alt={post.title}
         ratio="wide"
       />

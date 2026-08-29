@@ -26,14 +26,26 @@ export default function Photo({
   photoKind,
   alt,
   ratio = 'card',
+  src,
 }: {
   id: string;
   hasPhoto?: boolean;
   photoKind?: 'ai' | 'real';
   alt: string;
   ratio?: 'card' | 'wide';
+  /** ユーザー投稿の写真（データURL）。指定時はこちらを優先する */
+  src?: string;
 }) {
   const className = ratio === 'wide' ? 'photo photo-wide' : 'photo';
+
+  if (src) {
+    return (
+      <span className={ratio === 'wide' ? 'photo-slot wide' : 'photo-slot'}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={className} src={src} alt={alt} decoding="async" />
+      </span>
+    );
+  }
 
   if (hasPhoto) {
     return (

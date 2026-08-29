@@ -3,11 +3,12 @@
 // かんたん検索。条件をタップで選ぶと、条件に合う順に提案が並ぶ。
 // 詳細は lib/suggest.ts（ANDで絞らずスコアで並べる理由もそこに書いてある）。
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import PointBadge from '@/components/PointBadge';
 import { CATEGORIES, CategoryId } from '@/lib/data';
 import { POSTS } from '@/lib/posts';
+import { UserPost, getUserPosts } from '@/lib/userPosts';
 import {
   Conditions,
   EMPTY_CONDITIONS,
@@ -66,11 +67,14 @@ const BUDGET: Row<0 | 1 | 2> = {
 export default function SearchPage() {
   const [c, setC] = useState<Conditions>(EMPTY_CONDITIONS);
   const [submitted, setSubmitted] = useState(false);
+  const [mine, setMine] = useState<UserPost[]>([]);
+
+  useEffect(() => setMine(getUserPosts()), []);
 
   const set = <K extends keyof Conditions>(key: K, value: Conditions[K]) =>
     setC((prev) => ({ ...prev, [key]: prev[key] === value ? null : value }));
 
-  const results = useMemo(() => suggest(POSTS, c, 5), [c]);
+  const results = useMemo(() => suggest([...mine, ...POSTS], c, 5), [c, mine]);
   const chosen = countChosen(c);
 
   return (
@@ -151,6 +155,7 @@ export default function SearchPage() {
                 id={post.id}
                 hasPhoto={post.hasPhoto}
                 photoKind={post.photoKind}
+                src={post.photoDataUrl}
                 alt={post.title}
               />
               <div className="hit-body">

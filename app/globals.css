@@ -776,6 +776,43 @@ body {
 .upload-label {
   font-size: 14px;
   font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.pick-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pick-row .btn-sm {
+  flex: 0 1 auto;
+  padding: 9px 14px;
+}
+
+.geo-ok,
+.geo-none {
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+
+.geo-ok {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.geo-ok .map-link {
+  margin-top: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.geo-none {
+  background: #fff4d6;
+  color: #6b5310;
 }
 
 /* ---- プロフィール ---- */
