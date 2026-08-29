@@ -54,7 +54,6 @@ export default function NewPostPage() {
   const [reading, setReading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState('');
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [resolving, setResolving] = useState(false);
 
   // 座標から地名を引いて場所欄に入れる。
@@ -202,17 +201,26 @@ export default function NewPostPage() {
             </button>
           </>
         ) : (
-          <button
-            className="upload"
-            type="button"
-            onClick={() => setPickerOpen(true)}
-            disabled={reading}
-          >
-            <span className="upload-plus">＋</span>
-            <span className="upload-label">
-              {reading ? '読み込み中…' : '写真を追加'}
-            </span>
-          </button>
+          // ＋を押してから選ばせる二段階をやめ、最初から選択肢を出す
+          <div className="pick-card">
+            <button
+              className="pick-item"
+              type="button"
+              disabled={reading}
+              onClick={() => cameraRef.current?.click()}
+            >
+              📷　カメラで撮る
+            </button>
+            <button
+              className="pick-item"
+              type="button"
+              disabled={reading}
+              onClick={() => libraryRef.current?.click()}
+            >
+              🖼　写真から選ぶ
+            </button>
+            {reading && <p className="pick-reading">読み込み中…</p>}
+          </div>
         )}
 
         <input
@@ -385,43 +393,6 @@ export default function NewPostPage() {
         投稿する
       </button>
 
-      {/* ＋ を押したときの選択シート */}
-      {pickerOpen && (
-        <div
-          className="sheet-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-label="写真の追加方法"
-          onClick={() => setPickerOpen(false)}
-        >
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="sheet-item"
-              onClick={() => {
-                setPickerOpen(false);
-                cameraRef.current?.click();
-              }}
-            >
-              📷　カメラで撮る
-            </button>
-            <button
-              className="sheet-item"
-              onClick={() => {
-                setPickerOpen(false);
-                libraryRef.current?.click();
-              }}
-            >
-              🖼　写真から選ぶ
-            </button>
-            <button
-              className="sheet-item sheet-cancel"
-              onClick={() => setPickerOpen(false)}
-            >
-              キャンセル
-            </button>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
