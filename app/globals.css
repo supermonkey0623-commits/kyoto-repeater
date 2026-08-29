@@ -834,12 +834,13 @@ body {
   display: block;
 }
 
-/* 写真の追加。二段階にせず、最初から選択肢を並べる */
+/* 写真の追加。選択肢は＋ボタンの上に開く */
 .pick-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .pick-item {

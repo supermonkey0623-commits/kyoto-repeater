@@ -6,10 +6,9 @@ import type { Post } from '@/lib/posts';
 
 type Props = {
   post: Post;
-  unlocked: boolean;
 };
 
-export default function PostCard({ post, unlocked }: Props) {
+export default function PostCard({ post }: Props) {
   return (
     <article className="post-card">
       <Link href={`/post/${post.id}`} className="post-link">
@@ -25,18 +24,10 @@ export default function PostCard({ post, unlocked }: Props) {
           <h3 className="post-title">{post.title}</h3>
           {/* サムネには場所を出さない。場所は投稿を開いてから見せる */}
           <p className="post-excerpt">
-            {unlocked ? post.body : post.body.slice(0, 28) + '…'}
+            {post.body.slice(0, 28) + '…'}
           </p>
         </div>
       </Link>
-
-      <div className="post-foot">
-        {unlocked ? (
-          <span className="post-open">読んだ</span>
-        ) : (
-          <span className="post-cost">{post.costPt}pt で読む</span>
-        )}
-      </div>
     </article>
   );
 }

@@ -9,15 +9,12 @@ import { useEffect, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
-import { getUnlocked } from '@/lib/points';
 import { UserPost, getUserPosts } from '@/lib/userPosts';
 
 export default function HomePage() {
-  const [unlocked, setUnlocked] = useState<string[]>([]);
   const [mine, setMine] = useState<UserPost[]>([]);
 
   useEffect(() => {
-    setUnlocked(getUnlocked());
     setMine(getUserPosts());
   }, []);
 
@@ -54,11 +51,7 @@ export default function HomePage() {
         <p className="empty">このカテゴリの投稿はまだありません。</p>
       ) : (
         posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            unlocked={unlocked.includes(post.id)}
-          />
+          <PostCard key={post.id} post={post} />
         ))
       )}
     </main>

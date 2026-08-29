@@ -1,91 +1,98 @@
 'use client';
 
-// 左右スワイプでボトムメニューを切り替える。指の動きに画面が追従する。
+// 左右スワイプでボトムメニューを切り替える。
 //
-// 挙動:
-// - ドラッグ中は指に吸い付いて画面が動く
-// - 閾値を超える／速く弾くと、その方向へ送り出して次のタブへ
-// - 足りなければゴムのように元へ戻る
-// - 端（最初・最後のタブ）では抵抗を強くして、行き止まりを手で分からせる
+// 指追従の要点:
+// - 行き先がある方向は制約を大きく取り、指と 1:1 で画面が動く
+// - 行き先がない端だけ 0 で止め、ゴムのように少し伸びて戻る
+// - 離したら、閾値を超えていれば送り出し、足りなければバネで戻す
 //
-// 制約: ルートを分けたままなので、ドラッグ中に隣の画面は覗けない。
-//       3画面を横に並べるにはルート構造の作り直しが必要。
+// dragElastic は「制約を越えた分の追従率」。
+// 制約を 0 にしたまま elastic を下げると全体の動きが鈍り、指から離れて感じる。
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-} from 'motion/react';
+import { animate, motion, useMotionValue, useReducedMotion } from 'motion/react';
 
 /** ボトムメニューと同じ並び。左へ引くと次、右へ引くと前 */
 export const TAB_ORDER = ['/home', '/new', '/me'] as const;
 
-const DISTANCE = 70; // px。これを超えたら切り替え
-const VELOCITY = 480; // px/s。速く弾いた場合は距離が足りなくても切り替え
+const DISTANCE = 55; // px。これを超えたら切り替え
+const VELOCITY = 350; // px/s。速く弾いた場合は距離が足りなくても切り替え
 
-const SPRING = { type: 'spring', stiffness: 420, damping: 38, mass: 0.7 } as const;
+const SPRING = { type: 'spring', stiffness: 560, damping: 44, mass: 0.6 } as const;
 
 export default function SwipeTabs({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const x = useMotionValue(0);
+  const [width, setWidth] = useState(430);
+  const enterFrom = useRef(0);
 
-  // 切り替え方向。入場アニメーションをどちらから始めるかに使う
-  const [dir, setDir] = useState(0);
+  useEffect(() => {
+    const measure = () => setWidth(window.innerWidth);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
 
   const index = TAB_ORDER.indexOf(pathname as (typeof TAB_ORDER)[number]);
   const isTab = index !== -1;
-  const canPrev = isTab && index > 0;
-  const canNext = isTab && index < TAB_ORDER.length - 1;
 
-  // 画面が変わったら位置をリセットしておく（前の画面のずれを持ち越さない）
+  // 画面が変わったら、出ていった方向の反対側から滑り込ませる
   useEffect(() => {
-    x.set(0);
-  }, [pathname, x]);
+    if (!isTab) return;
+    const from = enterFrom.current;
+    enterFrom.current = 0;
+    if (from === 0) {
+      x.set(0);
+      return;
+    }
+    x.set(from);
+    animate(x, 0, SPRING);
+  }, [pathname, isTab, x]);
 
   // タブ以外（検索・投稿詳細）ではドラッグさせない。戻る操作と競合するため
   if (!isTab || reduced) return <>{children}</>;
 
+  const canPrev = index > 0;
+  const canNext = index < TAB_ORDER.length - 1;
+
   const go = (delta: number) => {
     const next = index + delta;
     if (next < 0 || next >= TAB_ORDER.length) return;
-    setDir(delta);
+    enterFrom.current = delta > 0 ? width : -width;
+    animate(x, delta > 0 ? -width : width, {
+      type: 'tween',
+      duration: 0.15,
+      ease: 'easeOut',
+    });
     router.push(TAB_ORDER[next]);
   };
 
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
-      <motion.div
-        key={pathname}
-        style={{ x, touchAction: 'pan-y' }}
-        drag="x"
-        dragDirectionLock
-        dragConstraints={{ left: 0, right: 0 }}
-        // 行き先がない方向は抵抗を強くして、端であることを指に返す
-        dragElastic={{
-          left: canNext ? 0.55 : 0.06,
-          right: canPrev ? 0.55 : 0.06,
-          top: 0,
-          bottom: 0,
-        }}
-        dragMomentum={false}
-        onDragEnd={(_, info) => {
-          const far = Math.abs(info.offset.x) > DISTANCE;
-          const fast = Math.abs(info.velocity.x) > VELOCITY;
-          if (!far && !fast) return; // 足りなければ元へ戻る（constraintsが戻す）
-          if (info.offset.x < 0 && canNext) go(1);
-          else if (info.offset.x > 0 && canPrev) go(-1);
-        }}
-        initial={{ x: dir === 0 ? 0 : dir > 0 ? 220 : -220, opacity: dir === 0 ? 1 : 0.4 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={SPRING}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      style={{ x, touchAction: 'pan-y' }}
+      drag="x"
+      dragDirectionLock
+      // 行ける方向は画面幅まで許可＝指と1:1。行けない端は 0 で止める
+      dragConstraints={{
+        left: canNext ? -width : 0,
+        right: canPrev ? width : 0,
+      }}
+      // 制約を越えた分（＝端）だけゴムにする
+      dragElastic={0.12}
+      dragMomentum={false}
+      onDragEnd={(_, info) => {
+        const far = Math.abs(info.offset.x) > DISTANCE;
+        const fast = Math.abs(info.velocity.x) > VELOCITY;
+        if ((far || fast) && info.offset.x < 0 && canNext) return go(1);
+        if ((far || fast) && info.offset.x > 0 && canPrev) return go(-1);
+        animate(x, 0, SPRING); // 足りなければ戻す
+      }}
+    >
+      {children}
+    </motion.div>
   );
 }

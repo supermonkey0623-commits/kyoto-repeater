@@ -55,6 +55,7 @@ export default function NewPostPage() {
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState('');
   const [resolving, setResolving] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // 座標から地名を引いて場所欄に入れる。
   // APIキーが無い・応答が無い環境では座標をそのまま入れる（空欄で放置しない）。
@@ -201,26 +202,46 @@ export default function NewPostPage() {
             </button>
           </>
         ) : (
-          // ＋を押してから選ばせる二段階をやめ、最初から選択肢を出す
-          <div className="pick-card">
+          <>
+            {/* 選択肢は＋の上に出す。画面下から出すとフォームが隠れるため */}
+            {pickerOpen && (
+              <div className="pick-card">
+                <button
+                  className="pick-item"
+                  type="button"
+                  onClick={() => {
+                    setPickerOpen(false);
+                    cameraRef.current?.click();
+                  }}
+                >
+                  📷　カメラで撮る
+                </button>
+                <button
+                  className="pick-item"
+                  type="button"
+                  onClick={() => {
+                    setPickerOpen(false);
+                    libraryRef.current?.click();
+                  }}
+                >
+                  🖼　写真から選ぶ
+                </button>
+              </div>
+            )}
+
             <button
-              className="pick-item"
+              className="upload"
               type="button"
               disabled={reading}
-              onClick={() => cameraRef.current?.click()}
+              aria-expanded={pickerOpen}
+              onClick={() => setPickerOpen((v) => !v)}
             >
-              📷　カメラで撮る
+              <span className="upload-plus">＋</span>
+              <span className="upload-label">
+                {reading ? '読み込み中…' : '写真を追加'}
+              </span>
             </button>
-            <button
-              className="pick-item"
-              type="button"
-              disabled={reading}
-              onClick={() => libraryRef.current?.click()}
-            >
-              🖼　写真から選ぶ
-            </button>
-            {reading && <p className="pick-reading">読み込み中…</p>}
-          </div>
+          </>
         )}
 
         <input
