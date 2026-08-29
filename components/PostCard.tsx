@@ -20,7 +20,7 @@ export default function PostCard({ post }: Props) {
           alt={post.title}
         />
         <div className="post-body">
-          <span className="post-tag">{post.tag}</span>
+          {/* タイトルの上のキーワードは出さない。写真とタイトルだけで見せる */}
           <h3 className="post-title">{post.title}</h3>
           {/* サムネには場所を出さない。場所は投稿を開いてから見せる */}
           <p className="post-excerpt">

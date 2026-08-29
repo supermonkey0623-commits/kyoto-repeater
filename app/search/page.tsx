@@ -208,7 +208,7 @@ export default function SearchPage() {
                 alt={post.title}
               />
               <div className="hit-body">
-                <span className="post-tag">{post.tag}</span>
+                {/* ホームと同じく、タイトルの上のキーワードは出さない */}
                 <div className="post-title">{post.title}</div>
                 {reasons.length > 0 && (
                   <div className="reasons">

@@ -106,7 +106,6 @@ export default function PostDetailPage() {
         <PointBadge />
       </div>
 
-      <span className="post-tag">{post.tag}</span>
       <h1 className="detail-title">{post.title}</h1>
 
       <Photo
