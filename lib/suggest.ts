@@ -1,28 +1,26 @@
 // かんたん検索の提案ロジック。
 //
-// 重要: 条件をANDで絞り込まない。
-// 投稿が12件しかない段階でAND検索にすると、条件を2つ選んだだけで0件になる。
-// 「条件に合うほど上に来る」スコア方式にして、必ず上位が出るようにしている。
+// 条件を2種類に分けている。
 //
-// AIは使っていない。加点と並び替えだけ。
+//   絞り込み（ハード）… キーワード / 気分・趣味
+//     ユーザーが明確に指定したもの。合わないものを混ぜると「効いていない」と感じる。
+//     該当が無ければ 0件と正直に出す。
+//
+//   並べ替え（ソフト）… 誰と / 天気 / 時間帯 / 空き時間 / 予算
+//     好みの度合い。これで0件にすると使い物にならないので、順位付けだけに使う。
+//
+// AIは使っていない。文字列一致と加点、並べ替えのみ。
 
 import type { CategoryId } from './data';
 import type { Post } from './posts';
 
 export type Conditions = {
-  /** フリーワード。空白区切りで複数語を受け付ける */
   keyword: string;
-  /** 気分・趣味 */
   mood: CategoryId | null;
-  /** 誰と */
   who: 'solo' | 'pair' | 'group' | null;
-  /** 天気 */
   weather: 'sunny' | 'rain' | null;
-  /** 空き時間（分）。これより短く済む場所を上に出す */
   freeMinutes: number | null;
-  /** 予算感 */
   budget: 0 | 1 | 2 | null;
-  /** 時間帯 */
   timeOfDay: 'morning' | 'day' | 'night' | null;
 };
 
@@ -44,9 +42,7 @@ export type Scored = {
 };
 
 const WEIGHT = {
-  /** キーワードは明示的な意思表示なので、他の条件より重く見る */
-  keyword: 4,
-  mood: 3,
+  keyword: 5,
   timeOfDay: 2,
   weather: 2,
   freeMinutes: 2,
@@ -54,31 +50,27 @@ const WEIGHT = {
   budget: 1,
 };
 
-/** 投稿のうちキーワード照合の対象にする文字列 */
+/** キーワード照合の対象。日本語は分かち書きが無いので部分一致で拾う */
 function haystack(post: Post): string {
   return [post.title, post.tag, post.area, post.body, post.place ?? '']
     .join(' ')
     .toLowerCase();
 }
 
-export function scorePost(post: Post, c: Conditions): Scored {
+export function splitTerms(keyword: string): string[] {
+  return keyword.trim().toLowerCase().split(/[\s　]+/).filter(Boolean);
+}
+
+/** キーワードに1語でも一致するか。一致した語も返す */
+function matchKeyword(post: Post, terms: string[]): string[] {
+  if (terms.length === 0) return [];
+  const text = haystack(post);
+  return terms.filter((t) => text.includes(t));
+}
+
+function scoreSoft(post: Post, c: Conditions): Scored {
   let score = 0;
   const reasons: string[] = [];
-
-  const terms = c.keyword.trim().toLowerCase().split(/[\s　]+/).filter(Boolean);
-  if (terms.length > 0) {
-    const text = haystack(post);
-    const matched = terms.filter((t) => text.includes(t));
-    if (matched.length > 0) {
-      score += WEIGHT.keyword * matched.length;
-      reasons.push(`「${matched.join('・')}」に一致`);
-    }
-  }
-
-  if (c.mood && post.categories.includes(c.mood)) {
-    score += WEIGHT.mood;
-    reasons.push('気分に合う');
-  }
 
   if (c.timeOfDay && post.timeOfDay.includes(c.timeOfDay)) {
     score += WEIGHT.timeOfDay;
@@ -87,7 +79,7 @@ export function scorePost(post: Post, c: Conditions): Scored {
     );
   }
 
-  // 雨は「屋内に加点」だけでは足りない。屋外を減点しないと、
+  // 雨は屋内への加点だけでは足りない。屋外を減点しないと、
   // 雨を選んでいるのに濡れる場所が上に来てしまう。
   if (c.weather === 'rain') {
     if (post.isIndoor) {
@@ -138,12 +130,30 @@ export function countChosen(c: Conditions): number {
 }
 
 /**
- * 条件に合う順に並べて返す。
- * 該当0件にはならない（スコア0の投稿も後ろに並ぶ）。
+ * 条件に合う投稿を返す。
+ * キーワードと気分は絞り込み。合わなければ 0件になる（正直に出す）。
+ * それ以外の条件は並べ替えにのみ使う。
  */
-export function suggest(posts: Post[], c: Conditions, limit = 5): Scored[] {
-  return posts
-    .map((p) => scorePost(p, c))
+export function suggest(posts: Post[], c: Conditions, limit = 8): Scored[] {
+  const terms = splitTerms(c.keyword);
+
+  const filtered = posts.filter((p) => {
+    if (terms.length > 0 && matchKeyword(p, terms).length === 0) return false;
+    if (c.mood && !p.categories.includes(c.mood)) return false;
+    return true;
+  });
+
+  return filtered
+    .map((p) => {
+      const soft = scoreSoft(p, c);
+      const hits = matchKeyword(p, terms);
+      if (hits.length > 0) {
+        soft.score += WEIGHT.keyword * hits.length;
+        soft.reasons.unshift(`「${hits.join('・')}」に一致`);
+      }
+      if (c.mood) soft.reasons.unshift('気分に合う');
+      return soft;
+    })
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 }

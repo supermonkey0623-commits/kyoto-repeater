@@ -1,7 +1,7 @@
 'use client';
 
-// かんたん検索。条件をタップで選ぶと、条件に合う順に提案が並ぶ。
-// 詳細は lib/suggest.ts（ANDで絞らずスコアで並べる理由もそこに書いてある）。
+// かんたん検索。条件を触るたび、結果がその場で変わる。
+// キーワードと気分は絞り込み、それ以外は並べ替えに使う（理由は lib/suggest.ts）。
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -66,7 +66,7 @@ const BUDGET: Row<0 | 1 | 2> = {
 
 export default function SearchPage() {
   const [c, setC] = useState<Conditions>(EMPTY_CONDITIONS);
-  const [submitted, setSubmitted] = useState(false);
+  
   const [mine, setMine] = useState<UserPost[]>([]);
 
   useEffect(() => setMine(getUserPosts()), []);
@@ -74,7 +74,7 @@ export default function SearchPage() {
   const set = <K extends keyof Conditions>(key: K, value: Conditions[K]) =>
     setC((prev) => ({ ...prev, [key]: prev[key] === value ? null : value }));
 
-  const results = useMemo(() => suggest([...mine, ...POSTS], c, 5), [c, mine]);
+  const results = useMemo(() => suggest([...mine, ...POSTS], c, 8), [c, mine]);
   const chosen = countChosen(c);
 
   return (
@@ -136,20 +136,27 @@ export default function SearchPage() {
         );
       })}
 
-      <button className="btn" onClick={() => setSubmitted(true)}>
-        {chosen === 0 ? '条件なしで見る' : `${chosen}つの条件で探す`}
-      </button>
+      {chosen > 0 && (
+        <button className="btn btn-ghost" onClick={() => setC(EMPTY_CONDITIONS)}>
+          条件をすべて外す
+        </button>
+      )}
 
-      {submitted && (
-        <section style={{ marginTop: 26 }}>
-          <h2 className="page-title">
-            {isEmpty(c) ? '新着の投稿' : '条件に合う順に5件'}
-          </h2>
-          <p className="page-lead">
-            場所は開いてから分かります
+      {/* 結果は常に出す。ボタンを押さないと変わらないと「効いていない」と感じるため */}
+      <section style={{ marginTop: 26 }}>
+        <h2 className="page-title">
+          {isEmpty(c) ? 'すべての投稿' : `${results.length}件`}
+        </h2>
+        <p className="page-lead">場所は開いてから分かります</p>
+
+        {results.length === 0 ? (
+          <p className="empty">
+            条件に合う投稿がありませんでした。
+            <br />
+            キーワードを短くするか、気分の選択を外してみてください。
           </p>
-
-          {results.map(({ post, score, reasons }) => (
+        ) : (
+          results.map(({ post, reasons }) => (
             <Link key={post.id} href={`/post/${post.id}`} className="hit">
               <Photo
                 id={post.id}
@@ -170,14 +177,11 @@ export default function SearchPage() {
                     ))}
                   </div>
                 )}
-                {score <= 0 && !isEmpty(c) && (
-                  <div className="hint">条件には合いませんが、近い候補です</div>
-                )}
               </div>
             </Link>
-          ))}
-        </section>
-      )}
+          ))
+        )}
+      </section>
     </main>
   );
 }

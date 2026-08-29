@@ -44,7 +44,6 @@ const BUDGET = [
 
 export default function NewPostPage() {
   const router = useRouter();
-  const cameraRef = useRef<HTMLInputElement>(null);
   const libraryRef = useRef<HTMLInputElement>(null);
 
   const [photo, setPhoto] = useState<string | null>(null);
@@ -55,7 +54,6 @@ export default function NewPostPage() {
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState('');
   const [resolving, setResolving] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
 
   // 座標から地名を引いて場所欄に入れる。
   // APIキーが無い・応答が無い環境では座標をそのまま入れる（空欄で放置しない）。
@@ -202,56 +200,21 @@ export default function NewPostPage() {
             </button>
           </>
         ) : (
-          <>
-            {/* 選択肢は＋の上に出す。画面下から出すとフォームが隠れるため */}
-            {pickerOpen && (
-              <div className="pick-card">
-                <button
-                  className="pick-item"
-                  type="button"
-                  onClick={() => {
-                    setPickerOpen(false);
-                    cameraRef.current?.click();
-                  }}
-                >
-                  📷　カメラで撮る
-                </button>
-                <button
-                  className="pick-item"
-                  type="button"
-                  onClick={() => {
-                    setPickerOpen(false);
-                    libraryRef.current?.click();
-                  }}
-                >
-                  🖼　写真から選ぶ
-                </button>
-              </div>
-            )}
-
-            <button
-              className="upload"
-              type="button"
-              disabled={reading}
-              aria-expanded={pickerOpen}
-              onClick={() => setPickerOpen((v) => !v)}
-            >
-              <span className="upload-plus">＋</span>
-              <span className="upload-label">
-                {reading ? '読み込み中…' : '写真を追加'}
-              </span>
-            </button>
-          </>
+          // 選択肢はOSの純正メニューに任せる。
+          // capture を付けないと iOS は「写真ライブラリ／写真を撮る／ファイルを選択」を出す。
+          <button
+            className="upload"
+            type="button"
+            disabled={reading}
+            onClick={() => libraryRef.current?.click()}
+          >
+            <span className="upload-plus">＋</span>
+            <span className="upload-label">
+              {reading ? '読み込み中…' : '写真を追加'}
+            </span>
+          </button>
         )}
 
-        <input
-          ref={cameraRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          hidden
-          onChange={(e) => onPick(e.target.files?.[0])}
-        />
         <input
           ref={libraryRef}
           type="file"
