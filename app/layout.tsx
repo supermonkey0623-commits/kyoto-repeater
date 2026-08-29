@@ -23,10 +23,12 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
+        {/* ボトムナビはドラッグ対象の外に出す。
+            transform された祖先の中では position:fixed が効かなくなるため */}
         <SwipeTabs>
           <div className="shell">{children}</div>
-          <BottomNav />
         </SwipeTabs>
+        <BottomNav />
       </body>
     </html>
   );
