@@ -24,7 +24,7 @@ export default function PostCard({ post, saved, unlocked, onToggleSave }: Props)
         <div className="post-body">
           <span className="post-tag">{post.tag}</span>
           <h3 className="post-title">{post.title}</h3>
-          <p className="post-area">📍 {post.area}</p>
+          {/* サムネには場所を出さない。場所は投稿を開いてから見せる */}
           <p className="post-excerpt">
             {unlocked ? post.body : post.body.slice(0, 28) + '…'}
           </p>

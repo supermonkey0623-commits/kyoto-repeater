@@ -3,19 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// 検索は作らないため、代わりに「保存」を置く。
+// ボトムメニューは3つ。
+// 保存した投稿はプロフィール内のタブから見られるので、ここには置かない。
 const ITEMS = [
   { href: '/home', icon: '⌂', label: 'ホーム' },
   { href: '/new', icon: '＋', label: '投稿' },
-  { href: '/saved', icon: '🔖', label: '保存' },
   { href: '/me', icon: '☺', label: 'プロフィール' },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
-
-  // オンボーディング（比較画面）ではナビを出さない
-  if (pathname === '/') return null;
 
   return (
     <nav className="nav">
@@ -23,7 +20,7 @@ export default function BottomNav() {
         <Link
           key={item.href}
           href={item.href}
-          data-active={pathname.startsWith(item.href)}
+          data-active={pathname === item.href}
         >
           <span className="nav-icon">{item.icon}</span>
           {item.label}

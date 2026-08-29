@@ -82,7 +82,6 @@ export default function PostDetailPage() {
 
       <span className="post-tag">{post.tag}</span>
       <h1 className="detail-title">{post.title}</h1>
-      <p className="post-area">📍 {post.area}</p>
 
       <Photo
         id={post.id}
@@ -94,6 +93,29 @@ export default function PostDetailPage() {
 
       {open ? (
         <>
+          {/* ポイントを払って得られるものの中心が「正確な場所」。
+              サムネには出さず、開いたときだけ見せる */}
+          <div className="place">
+            <div className="place-label">場所</div>
+            {post.place ? (
+              <>
+                <div className="place-name">{post.place}</div>
+                <a
+                  className="map-link"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    post.mapQuery ?? post.place
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Googleマップで開く ↗
+                </a>
+              </>
+            ) : (
+              <div className="hint">場所は準備中です。</div>
+            )}
+          </div>
+
           <p className="detail-body">{post.body}</p>
 
           {/* 払った理由をここで回収する。
@@ -126,7 +148,7 @@ export default function PostDetailPage() {
             この続きは <strong>{post.costPt}pt</strong> で読めます
           </p>
           <p className="hint">
-            行き方・時間帯・実際に行った人の言葉が書かれています。
+            正確な場所（Googleマップつき）と、実際に行った人の言葉が読めます。
           </p>
           <button className="btn" onClick={handleUnlock}>
             {post.costPt}pt を使って読む
