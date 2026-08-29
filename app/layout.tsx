@@ -4,9 +4,9 @@ import SwipeTabs from '@/components/SwipeTabs';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '京都リピーター向け発見アプリ（仮）',
+  title: 'よりみち',
   description:
-    '有名じゃない順に並べる、京都リピーターのための発見アプリ。関西ビギナーズハッカソン vol.8',
+    '定番を回り尽くした人へ。写真で出会って、まだ知らない京都へ寄り道する。',
 };
 
 export const viewport: Viewport = {

@@ -9,7 +9,8 @@ import { useEffect, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
-import { RemotePost, fetchRemotePosts } from '@/lib/remotePosts';
+import { RemotePost, fetchRemotePosts, getMyPostIds } from '@/lib/remotePosts';
+import { getUnlocked } from '@/lib/points';
 
 export default function HomePage() {
   const [remote, setRemote] = useState<RemotePost[]>([]);
@@ -28,8 +29,15 @@ export default function HomePage() {
     };
   }, []);
 
-  // 新しい投稿を先に、そのあと種データ
-  const posts = [...remote, ...POSTS];
+  // おすすめには、自分の投稿と読み終わった投稿を出さない。
+  // 知らない場所に出会う場所なので、既に知っているものが並ぶと意味が薄れる。
+  const [excluded, setExcluded] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setExcluded(new Set([...getMyPostIds(), ...getUnlocked()]));
+  }, []);
+
+  const posts = [...remote, ...POSTS].filter((p) => !excluded.has(p.id));
 
   return (
     <main>
@@ -41,8 +49,7 @@ export default function HomePage() {
 
       <header className="home-head">
         <div>
-          <h1 className="page-title">まだ知らない京都</h1>
-          <p className="page-lead">有名じゃない順に並んでいます</p>
+          <h1 className="page-title">よりみち</h1>
         </div>
         <PointBadge />
       </header>

@@ -99,7 +99,7 @@ export default function PostDetailPage() {
     if (isMyPost(post.id) && getSettings().notifyReaction) {
       notify({
         kind: 'reaction',
-        title: '「✨新しい」が届きました',
+        title: '「役に立った」が届きました',
         body: post.title,
         postId: post.id,
       });
@@ -159,7 +159,7 @@ export default function PostDetailPage() {
           {/* 自分の投稿には押せない。自分で自分に送るのはおかしい */}
           {isMine ? (
             <p className="hint" style={{ textAlign: 'center' }}>
-              あなたの投稿です。読んだ人が「✨新しい」を送るとポイントが入ります。
+              あなたの投稿です。読んだ人が「役に立った」を送るとポイントが入ります。
             </p>
           ) : (
             <>
@@ -169,10 +169,10 @@ export default function PostDetailPage() {
                 disabled={hasReacted}
                 style={hasReacted ? { background: '#b9bcd0' } : undefined}
               >
-                {hasReacted ? '✨ 「新しい」を送りました（+1pt）' : '✨ 新しい（+1pt）'}
+                {hasReacted ? '✨ 「役に立った」を送りました（+1pt）' : '✨ 役に立った（+1pt）'}
               </button>
               <p className="hint" style={{ textAlign: 'center' }}>
-                知らなかった場所だと感じたら押してください。投稿者にポイントが入ります。
+                行ってみたいと思えたら押してください。投稿者にポイントが入ります。
               </p>
             </>
           )}
