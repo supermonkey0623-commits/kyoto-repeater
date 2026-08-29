@@ -1,13 +1,13 @@
 'use client';
 
-// ホーム: 投稿フィード。
-// カードには人気の数字（いいね数）を出さない。人気順を否定するのがこのアプリの前提のため。
-// 「知られていない」ことの証拠は、リスト先頭に1行だけ置く。
+// ホーム: 投稿のサムネ一覧。
+// サムネには人気の数字（いいね数）も場所も出さない。
+// 場所は投稿を開いてから見せる（それがポイントを払って得られるもの）。
 
 import { useEffect, useMemo, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
-import { CATEGORIES, CategoryId, FAMOUS_AVG, FAMOUS_AVG_COUNT } from '@/lib/data';
+import { CATEGORIES, CategoryId } from '@/lib/data';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
 import { getSaved, getUnlocked, toggleSaved } from '@/lib/points';
 
@@ -26,13 +26,6 @@ export default function HomePage() {
       category ? POSTS.filter((p) => p.categories.includes(category)) : POSTS,
     [category]
   );
-
-  // 実データで確認できた投稿だけで平均を出す。
-  // 未確認の数字を混ぜると、根拠として提示している数値が嘘になる。
-  const verified = posts.filter((p) => p.reviewVerified);
-  const avgReviews = verified.length
-    ? Math.round(verified.reduce((s, p) => s + p.reviewCount, 0) / verified.length)
-    : 0;
 
   return (
     <main>
@@ -70,15 +63,6 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* 証拠はここに1回だけ。カードには出さない。
-          口コミ件数を実データで確認できた投稿が無い間は表示しない */}
-      {verified.length > 0 && (
-        <p className="evidence">
-          この{verified.length}件は、定番観光地{FAMOUS_AVG_COUNT}か所の平均{' '}
-          <strong>{FAMOUS_AVG.toLocaleString()}人</strong> に対して、
-          平均 <strong>{avgReviews}人</strong> しか知りません。
-        </p>
-      )}
 
       {posts.length === 0 ? (
         <p className="empty">このカテゴリの投稿はまだありません。</p>
