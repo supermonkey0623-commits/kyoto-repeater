@@ -10,6 +10,8 @@ import type { CategoryId } from './data';
 import type { Post } from './posts';
 
 export type Conditions = {
+  /** フリーワード。空白区切りで複数語を受け付ける */
+  keyword: string;
   /** 気分・趣味 */
   mood: CategoryId | null;
   /** 誰と */
@@ -25,6 +27,7 @@ export type Conditions = {
 };
 
 export const EMPTY_CONDITIONS: Conditions = {
+  keyword: '',
   mood: null,
   who: null,
   weather: null,
@@ -41,6 +44,8 @@ export type Scored = {
 };
 
 const WEIGHT = {
+  /** キーワードは明示的な意思表示なので、他の条件より重く見る */
+  keyword: 4,
   mood: 3,
   timeOfDay: 2,
   weather: 2,
@@ -49,9 +54,26 @@ const WEIGHT = {
   budget: 1,
 };
 
+/** 投稿のうちキーワード照合の対象にする文字列 */
+function haystack(post: Post): string {
+  return [post.title, post.tag, post.area, post.body, post.place ?? '']
+    .join(' ')
+    .toLowerCase();
+}
+
 export function scorePost(post: Post, c: Conditions): Scored {
   let score = 0;
   const reasons: string[] = [];
+
+  const terms = c.keyword.trim().toLowerCase().split(/[\s　]+/).filter(Boolean);
+  if (terms.length > 0) {
+    const text = haystack(post);
+    const matched = terms.filter((t) => text.includes(t));
+    if (matched.length > 0) {
+      score += WEIGHT.keyword * matched.length;
+      reasons.push(`「${matched.join('・')}」に一致`);
+    }
+  }
 
   if (c.mood && post.categories.includes(c.mood)) {
     score += WEIGHT.mood;
@@ -100,9 +122,19 @@ export function scorePost(post: Post, c: Conditions): Scored {
   return { post, score, reasons };
 }
 
-/** 条件が1つも選ばれていないか */
+/** 条件が1つも選ばれていないか（キーワードは空文字が未入力） */
 export function isEmpty(c: Conditions): boolean {
-  return Object.values(c).every((v) => v === null);
+  const { keyword, ...rest } = c;
+  return keyword.trim() === '' && Object.values(rest).every((v) => v === null);
+}
+
+/** 選ばれている条件の数。ボタンの文言に使う */
+export function countChosen(c: Conditions): number {
+  const { keyword, ...rest } = c;
+  return (
+    (keyword.trim() === '' ? 0 : 1) +
+    Object.values(rest).filter((v) => v !== null).length
+  );
 }
 
 /**

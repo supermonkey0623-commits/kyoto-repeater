@@ -8,7 +8,13 @@ import Link from 'next/link';
 import PointBadge from '@/components/PointBadge';
 import { CATEGORIES, CategoryId } from '@/lib/data';
 import { POSTS } from '@/lib/posts';
-import { Conditions, EMPTY_CONDITIONS, isEmpty, suggest } from '@/lib/suggest';
+import {
+  Conditions,
+  EMPTY_CONDITIONS,
+  countChosen,
+  isEmpty,
+  suggest,
+} from '@/lib/suggest';
 import Photo from '@/components/Photo';
 
 type Row<T> = { label: string; options: { value: T; label: string }[] };
@@ -65,7 +71,7 @@ export default function SearchPage() {
     setC((prev) => ({ ...prev, [key]: prev[key] === value ? null : value }));
 
   const results = useMemo(() => suggest(POSTS, c, 5), [c]);
-  const chosen = Object.values(c).filter((v) => v !== null).length;
+  const chosen = countChosen(c);
 
   return (
     <main>
@@ -76,6 +82,18 @@ export default function SearchPage() {
         </div>
         <PointBadge />
       </header>
+
+      <div className="field">
+        <div className="field-label">キーワード</div>
+        <input
+          className="input"
+          type="search"
+          value={c.keyword}
+          onChange={(e) => setC((prev) => ({ ...prev, keyword: e.target.value }))}
+          placeholder="例：苔　古本　朝　嵐山"
+        />
+        <p className="hint">空白で区切ると複数の言葉で探せます</p>
+      </div>
 
       <div className="field">
         <div className="field-label">気分・趣味</div>
@@ -147,7 +165,7 @@ export default function SearchPage() {
                     ))}
                   </div>
                 )}
-                {score === 0 && !isEmpty(c) && (
+                {score <= 0 && !isEmpty(c) && (
                   <div className="hint">条件には合いませんが、近い候補です</div>
                 )}
               </div>

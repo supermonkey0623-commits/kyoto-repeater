@@ -5,15 +5,13 @@
 // 場所は投稿を開いてから見せる（それがポイントを払って得られるもの）。
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
-import { CATEGORIES, CategoryId } from '@/lib/data';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
 import { getSaved, getUnlocked, toggleSaved } from '@/lib/points';
 
 export default function HomePage() {
-  const [category, setCategory] = useState<CategoryId | null>(null);
   const [saved, setSaved] = useState<string[]>([]);
   const [unlocked, setUnlocked] = useState<string[]>([]);
 
@@ -22,11 +20,8 @@ export default function HomePage() {
     setUnlocked(getUnlocked());
   }, []);
 
-  const posts = useMemo(
-    () =>
-      category ? POSTS.filter((p) => p.categories.includes(category)) : POSTS,
-    [category]
-  );
+  // カテゴリの絞り込みはかんたん検索側に集約したので、ここでは全件を出す
+  const posts = POSTS;
 
   return (
     <main>
@@ -51,25 +46,6 @@ export default function HomePage() {
         <span className="search-go">›</span>
       </Link>
 
-      <div className="chips">
-        <button
-          className="chip"
-          data-selected={category === null}
-          onClick={() => setCategory(null)}
-        >
-          すべて
-        </button>
-        {CATEGORIES.map((c) => (
-          <button
-            key={c.id}
-            className="chip"
-            data-selected={category === c.id}
-            onClick={() => setCategory(category === c.id ? null : c.id)}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
 
 
       {posts.length === 0 ? (
