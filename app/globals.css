@@ -815,6 +815,154 @@ body {
   color: #6b5310;
 }
 
+/* ---- 写真の追加（＋ボタンと選択シート） ---- */
+.upload {
+  display: block;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.upload:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.upload-plus,
+.upload-label {
+  display: block;
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 26, 0.42);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+  padding: 12px;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 456px;
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: calc(var(--nav-h) + 8px);
+}
+
+.sheet-item {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 17px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: center;
+}
+
+.sheet-item:last-child {
+  border-bottom: none;
+}
+
+.sheet-cancel {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ---- ハンバーガーメニュー ---- */
+.me-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0 9px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+}
+
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.menu {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  z-index: 41;
+  width: 208px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(20, 20, 26, 0.12);
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 11px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.menu-danger {
+  color: #b3423a;
+}
+
+.menu-danger:disabled {
+  color: #c98d88;
+}
+
+.menu-note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 6px 12px 4px;
+}
+
 /* ---- プロフィール ---- */
 .profile {
   background: var(--surface);

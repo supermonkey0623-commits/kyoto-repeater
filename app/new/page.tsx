@@ -54,6 +54,30 @@ export default function NewPostPage() {
   const [reading, setReading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [resolving, setResolving] = useState(false);
+
+  // 座標から地名を引いて場所欄に入れる。
+  // APIキーが無い・応答が無い環境では座標をそのまま入れる（空欄で放置しない）。
+  const fillPlaceFrom = async (point: GeoPoint) => {
+    setResolving(true);
+    const fallback = `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}`;
+    try {
+      const res = await fetch(
+        `/api/reverse-geocode?lat=${point.lat}&lng=${point.lng}`
+      );
+      if (res.ok && res.status !== 204) {
+        const json = await res.json();
+        setPlace(json.name || fallback);
+      } else {
+        setPlace(fallback);
+      }
+    } catch {
+      setPlace(fallback);
+    } finally {
+      setResolving(false);
+    }
+  };
 
   // EXIFが無い写真は多い（SNS・Web経由・スクリーンショットでは削除される）。
   // 撮ってすぐ投稿するなら現在地＝撮影地なので、代わりに使えるようにする。
@@ -66,9 +90,11 @@ export default function NewPostPage() {
     setLocateError('');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const point = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setGeo(point);
         setGeoSource('device');
         setLocating(false);
+        fillPlaceFrom(point);
       },
       (err) => {
         setLocating(false);
@@ -109,6 +135,8 @@ export default function NewPostPage() {
     setGeoChecked(true);
     setLocateError('');
     setReading(false);
+    // 撮影地点が取れたら、場所欄まで自動で埋める
+    if (point) fillPlaceFrom(point);
   };
 
   const toggleCategory = (id: CategoryId) =>
@@ -174,20 +202,17 @@ export default function NewPostPage() {
             </button>
           </>
         ) : (
-          <div className="upload">
-            <div className="upload-plus">＋</div>
-            <div className="upload-label">
+          <button
+            className="upload"
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            disabled={reading}
+          >
+            <span className="upload-plus">＋</span>
+            <span className="upload-label">
               {reading ? '読み込み中…' : '写真を追加'}
-            </div>
-            <div className="pick-row">
-              <button className="btn-sm" onClick={() => cameraRef.current?.click()}>
-                📷 カメラで撮る
-              </button>
-              <button className="btn-sm" onClick={() => libraryRef.current?.click()}>
-                🖼 写真から選ぶ
-              </button>
-            </div>
-          </div>
+            </span>
+          </button>
         )}
 
         <input
@@ -263,8 +288,12 @@ export default function NewPostPage() {
           className="input"
           value={place}
           onChange={(e) => setPlace(e.target.value)}
-          placeholder={geo ? '写真から座標を取得済み。名前があれば入力' : '例：京都市左京区岡崎周辺'}
+          placeholder={resolving ? '写真の位置から取得中…' : '例：京都市左京区岡崎周辺'}
         />
+        {resolving && <p className="hint">写真の位置情報から場所を調べています…</p>}
+        {!resolving && geo && place && (
+          <p className="hint">写真の位置から自動入力しました。直せます。</p>
+        )}
       </div>
 
       <div className="field">
@@ -355,6 +384,44 @@ export default function NewPostPage() {
       <button className="btn" disabled={!canSubmit} onClick={submit}>
         投稿する
       </button>
+
+      {/* ＋ を押したときの選択シート */}
+      {pickerOpen && (
+        <div
+          className="sheet-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="写真の追加方法"
+          onClick={() => setPickerOpen(false)}
+        >
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="sheet-item"
+              onClick={() => {
+                setPickerOpen(false);
+                cameraRef.current?.click();
+              }}
+            >
+              📷　カメラで撮る
+            </button>
+            <button
+              className="sheet-item"
+              onClick={() => {
+                setPickerOpen(false);
+                libraryRef.current?.click();
+              }}
+            >
+              🖼　写真から選ぶ
+            </button>
+            <button
+              className="sheet-item sheet-cancel"
+              onClick={() => setPickerOpen(false)}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

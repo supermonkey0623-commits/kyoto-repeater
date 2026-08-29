@@ -22,6 +22,7 @@ export default function MePage() {
   const [reacted, setReacted] = useState<string[]>([]);
   const [mine, setMine] = useState<UserPost[]>([]);
   const [tab, setTab] = useState<'mine' | 'read'>('mine');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const load = () => {
     setBalance(getBalance());
@@ -36,13 +37,55 @@ export default function MePage() {
   // 他の人からの反応は、アカウントが無いので今は届かない（記録はこの端末のみ）。
   const received = mine.filter((p) => reacted.includes(p.id)).length;
 
-  const readPosts = [...mine, ...POSTS].filter((p) => unlocked.includes(p.id));
+  // 「読んだ投稿」に自分の投稿は含めない。自分で書いたものを読んだとは言わない。
+  const readPosts = POSTS.filter((p) => unlocked.includes(p.id));
+
   const list = tab === 'mine' ? mine : readPosts;
 
   return (
     <main>
-      <h1 className="page-title">プロフィール</h1>
-      <p className="page-lead">あなたの京都体験を、より豊かに。</p>
+      <div className="me-head">
+        <div>
+          <h1 className="page-title">プロフィール</h1>
+          <p className="page-lead">あなたの京都体験を、より豊かに。</p>
+        </div>
+
+        <div className="menu-wrap">
+          <button
+            className="hamburger"
+            aria-label="メニュー"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          {menuOpen && (
+            <>
+              <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />
+              <div className="menu" role="menu">
+                <button className="menu-item" role="menuitem" disabled>
+                  アカウント設定
+                </button>
+                <button className="menu-item" role="menuitem" disabled>
+                  通知
+                </button>
+                <button className="menu-item" role="menuitem" disabled>
+                  ヘルプ
+                </button>
+                <button className="menu-item menu-danger" role="menuitem" disabled>
+                  ログアウト
+                </button>
+                <p className="menu-note">
+                  ログインなしで使えるため、いずれも現在は無効です。
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="profile">
         <div className="profile-row">
@@ -56,18 +99,14 @@ export default function MePage() {
           </span>
         </div>
 
-        <div className="stats stats-4">
+        <div className="stats">
           <div className="stat">
             <div className="stat-num">{mine.length}</div>
             <div className="stat-label">投稿</div>
           </div>
           <div className="stat">
-            <div className="stat-num">{unlocked.length}</div>
+            <div className="stat-num">{readPosts.length}</div>
             <div className="stat-label">読んだ</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">{reacted.length}</div>
-            <div className="stat-label">送った✨</div>
           </div>
           <div className="stat">
             <div className="stat-num">{received}</div>
