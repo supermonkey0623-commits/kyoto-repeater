@@ -13,6 +13,8 @@ const KEYS = {
   unlocked: 'kyoto-repeater/unlocked',
   reacted: 'kyoto-repeater/reacted',
   saved: 'kyoto-repeater/saved',
+  /** 自分の投稿ごとに、何件分の反応をポイントに換算済みか */
+  credited: 'kyoto-repeater/credited',
 } as const;
 
 /** 初回に配るポイント。これが無いと新規ユーザーが何も見られない */
@@ -99,14 +101,59 @@ export function getReacted(): string[] {
   return readList(KEYS.reacted);
 }
 
-/** 「✨新しい」を押す。1投稿につき1回だけ加算する */
-export function react(id: string): { balance: number; reacted: string[] } {
+/**
+ * 「役に立った」を押す。
+ *
+ * 押した本人にポイントは入らない。ポイントが入るのは投稿者。
+ * 共有DBの反応数が増え、投稿者の端末で creditFromReactions() が換算する。
+ */
+export function react(id: string): { reacted: string[] } {
   const reacted = getReacted();
-  if (reacted.includes(id)) {
-    return { balance: getBalance(), reacted };
+  if (reacted.includes(id)) return { reacted };
+  return { reacted: writeList(KEYS.reacted, [...reacted, id]) };
+}
+
+function readCredited(): Record<string, number> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(KEYS.credited);
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
+  } catch {
+    return {};
   }
-  const next = writeList(KEYS.reacted, [...reacted, id]);
-  return { balance: setBalance(getBalance() + REACTION_REWARD), reacted: next };
+}
+
+/**
+ * 自分の投稿が受け取った反応を、まだ換算していない分だけポイントにする。
+ *
+ * 反応は共有DBに溜まるが、ポイント残高は各端末にある。
+ * そのため投稿者が自分の端末でアプリを開いたときに差分を精算する。
+ */
+export function creditFromReactions(
+  myPosts: { id: string; reactions: number }[]
+): { gained: number; balance: number } {
+  const credited = readCredited();
+  let gained = 0;
+  const next: Record<string, number> = { ...credited };
+
+  for (const p of myPosts) {
+    const already = credited[p.id] ?? 0;
+    const diff = Math.max(0, (p.reactions ?? 0) - already);
+    if (diff > 0) {
+      gained += diff * REACTION_REWARD;
+      next[p.id] = p.reactions;
+    } else if (!(p.id in next)) {
+      next[p.id] = p.reactions ?? 0;
+    }
+  }
+
+  try {
+    window.localStorage.setItem(KEYS.credited, JSON.stringify(next));
+  } catch {
+    // 保存できなくても残高は正しい
+  }
+
+  return { gained, balance: gained > 0 ? setBalance(getBalance() + gained) : getBalance() };
 }
 
 export function getSaved(): string[] {

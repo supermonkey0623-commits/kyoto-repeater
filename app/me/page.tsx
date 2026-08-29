@@ -9,13 +9,14 @@ import Photo from '@/components/Photo';
 import { POSTS } from '@/lib/posts';
 import {
   INITIAL_POINTS,
+  creditFromReactions,
   getBalance,
   getReacted,
   getUnlocked,
   resetAll,
 } from '@/lib/points';
 import { RemotePost, fetchRemotePosts, getMyPostIds } from '@/lib/remotePosts';
-import { getUnreadCount } from '@/lib/notifications';
+import { getUnreadCount, notify } from '@/lib/notifications';
 import { DEFAULT_SETTINGS, Settings, getSettings } from '@/lib/settings';
 
 export default function MePage() {
@@ -43,7 +44,20 @@ export default function MePage() {
     fetchRemotePosts().then((list) => {
       setAllRemote(list);
       const ids = getMyPostIds();
-      setMine(list.filter((p) => ids.includes(p.id)));
+      const my = list.filter((p) => ids.includes(p.id));
+      setMine(my);
+
+      // 自分の投稿に付いた反応を、まだ換算していない分だけポイントにする
+      const { gained, balance: next } = creditFromReactions(my);
+      setBalance(next);
+      if (gained > 0) {
+        notify({
+          kind: 'points',
+          title: `${gained}pt 受け取りました`,
+          body: '自分の投稿が「役に立った」と言われました',
+        });
+        setUnread(getUnreadCount());
+      }
     });
   }, []);
 

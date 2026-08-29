@@ -11,8 +11,6 @@ import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
 import { Post, getPost } from '@/lib/posts';
 import { addRemoteReaction, fetchRemotePost, isMyPost } from '@/lib/remotePosts';
-import { notify } from '@/lib/notifications';
-import { getSettings } from '@/lib/settings';
 import {
   getBalance,
   getReacted,
@@ -88,22 +86,13 @@ export default function PostDetailPage() {
   };
 
   const handleReact = () => {
+    // 押した本人にポイントは入らない。入るのは投稿者
     const res = react(post.id);
-    setBalance(res.balance);
     setReacted(res.reacted);
 
     // 共有DBのカウントも増やす
     addRemoteReaction(post.id);
 
-    // 自分の投稿に反応が付いたら通知する
-    if (isMyPost(post.id) && getSettings().notifyReaction) {
-      notify({
-        kind: 'reaction',
-        title: '「役に立った」が届きました',
-        body: post.title,
-        postId: post.id,
-      });
-    }
   };
 
   const hasReacted = reacted.includes(post.id);
@@ -159,7 +148,7 @@ export default function PostDetailPage() {
           {/* 自分の投稿には押せない。自分で自分に送るのはおかしい */}
           {isMine ? (
             <p className="hint" style={{ textAlign: 'center' }}>
-              あなたの投稿です。読んだ人が「役に立った」を送るとポイントが入ります。
+              あなたの投稿です。読んだ人が「役に立った」を送ると1ptが入ります。
             </p>
           ) : (
             <>
@@ -169,10 +158,10 @@ export default function PostDetailPage() {
                 disabled={hasReacted}
                 style={hasReacted ? { background: '#b9bcd0' } : undefined}
               >
-                {hasReacted ? '✨ 「役に立った」を送りました（+1pt）' : '✨ 役に立った（+1pt）'}
+                {hasReacted ? '✨ 「役に立った」を送りました' : '✨ 役に立った'}
               </button>
               <p className="hint" style={{ textAlign: 'center' }}>
-                行ってみたいと思えたら押してください。投稿者にポイントが入ります。
+                行ってみたいと思えたら押してください。投稿者に1ptが入ります。
               </p>
             </>
           )}
@@ -190,7 +179,7 @@ export default function PostDetailPage() {
           </button>
           {shortfall && (
             <p className="hint" style={{ color: '#b34' }}>
-              ポイントが足りません。他の投稿に「✨新しい」を送ると貯まります。
+              ポイントが足りません。自分の投稿が「役に立った」と言われると貯まります。
             </p>
           )}
           <p className="hint">残高 {balance === null ? '—' : balance}pt</p>
