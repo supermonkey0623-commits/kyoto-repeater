@@ -87,7 +87,7 @@ export default function OnboardingPage() {
           </strong>
         </p>
 
-        <Link href="/suggest" className="btn">
+        <Link href="/home" className="btn">
           知らない京都を見る →
         </Link>
       </main>
@@ -122,7 +122,7 @@ export default function OnboardingPage() {
           : `${selected.length}件を選んで次へ`}
       </button>
 
-      <Link href="/suggest" className="btn btn-ghost">
+      <Link href="/home" className="btn btn-ghost">
         あとで
       </Link>
     </main>
