@@ -873,6 +873,45 @@ body {
   color: var(--muted);
 }
 
+.stats-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.stats-4 .stat-num {
+  font-size: 18px;
+}
+
+.stats-4 .stat-label {
+  font-size: 10px;
+}
+
+/* 自分の投稿の1行 */
+.mine-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 11px;
+}
+
+.mine-link {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mine-row .btn-sm {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--border);

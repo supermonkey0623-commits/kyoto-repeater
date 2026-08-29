@@ -14,10 +14,8 @@ import { getUserPosts } from '@/lib/userPosts';
 import {
   getBalance,
   getReacted,
-  getSaved,
   isUnlocked,
   react,
-  toggleSaved,
   unlock,
 } from '@/lib/points';
 
@@ -33,7 +31,6 @@ export default function PostDetailPage() {
   const [open, setOpen] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
   const [reacted, setReacted] = useState<string[]>([]);
-  const [saved, setSaved] = useState<string[]>([]);
   const [shortfall, setShortfall] = useState(false);
 
   useEffect(() => {
@@ -45,7 +42,6 @@ export default function PostDetailPage() {
     setOpen(isUnlocked(found.id));
     setBalance(getBalance());
     setReacted(getReacted());
-    setSaved(getSaved());
   }, [params.id]);
 
   if (!post) {
@@ -78,7 +74,6 @@ export default function PostDetailPage() {
   };
 
   const hasReacted = reacted.includes(post.id);
-  const isSaved = saved.includes(post.id);
 
   return (
     <main>
@@ -160,12 +155,6 @@ export default function PostDetailPage() {
         </div>
       )}
 
-      <button
-        className="btn btn-ghost"
-        onClick={() => setSaved(toggleSaved(post.id))}
-      >
-        {isSaved ? '🔖 保存済み（外す）' : '📑 保存する'}
-      </button>
     </main>
   );
 }

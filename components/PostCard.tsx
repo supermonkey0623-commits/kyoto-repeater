@@ -6,12 +6,10 @@ import type { Post } from '@/lib/posts';
 
 type Props = {
   post: Post;
-  saved: boolean;
   unlocked: boolean;
-  onToggleSave: (id: string) => void;
 };
 
-export default function PostCard({ post, saved, unlocked, onToggleSave }: Props) {
+export default function PostCard({ post, unlocked }: Props) {
   return (
     <article className="post-card">
       <Link href={`/post/${post.id}`} className="post-link">
@@ -38,13 +36,6 @@ export default function PostCard({ post, saved, unlocked, onToggleSave }: Props)
         ) : (
           <span className="post-cost">{post.costPt}pt で読む</span>
         )}
-        <button
-          className="post-save"
-          aria-label={saved ? '保存を外す' : '保存する'}
-          onClick={() => onToggleSave(post.id)}
-        >
-          {saved ? '🔖' : '📑'}
-        </button>
       </div>
     </article>
   );

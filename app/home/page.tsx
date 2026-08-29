@@ -9,16 +9,14 @@ import { useEffect, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
-import { getSaved, getUnlocked, toggleSaved } from '@/lib/points';
+import { getUnlocked } from '@/lib/points';
 import { UserPost, getUserPosts } from '@/lib/userPosts';
 
 export default function HomePage() {
-  const [saved, setSaved] = useState<string[]>([]);
   const [unlocked, setUnlocked] = useState<string[]>([]);
   const [mine, setMine] = useState<UserPost[]>([]);
 
   useEffect(() => {
-    setSaved(getSaved());
     setUnlocked(getUnlocked());
     setMine(getUserPosts());
   }, []);
@@ -59,9 +57,7 @@ export default function HomePage() {
           <PostCard
             key={post.id}
             post={post}
-            saved={saved.includes(post.id)}
             unlocked={unlocked.includes(post.id)}
-            onToggleSave={(id) => setSaved(toggleSaved(id))}
           />
         ))
       )}

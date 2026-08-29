@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import BottomNav from '@/components/BottomNav';
+import SwipeTabs from '@/components/SwipeTabs';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -22,8 +23,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <div className="shell">{children}</div>
-        <BottomNav />
+        <SwipeTabs>
+          <div className="shell">{children}</div>
+          <BottomNav />
+        </SwipeTabs>
       </body>
     </html>
   );
