@@ -55,14 +55,15 @@ const FREE: Row<number> = {
   ],
 };
 
-const BUDGET: Row<0 | 1 | 2> = {
-  label: '予算',
-  options: [
-    { value: 0, label: 'かけない' },
-    { value: 1, label: '〜1000円' },
-    { value: 2, label: 'こだわらない' },
-  ],
-};
+// 予算は段階選択ではなく、下限・上限の円額で範囲指定する
+const YEN_OPTIONS: { value: number | null; label: string }[] = [
+  { value: null, label: '指定なし' },
+  { value: 0, label: '0円' },
+  { value: 500, label: '500円' },
+  { value: 1000, label: '1000円' },
+  { value: 2000, label: '2000円' },
+  { value: 3000, label: '3000円' },
+];
 
 export default function SearchPage() {
   const [c, setC] = useState<Conditions>(EMPTY_CONDITIONS);
@@ -117,8 +118,8 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {([WHO, WEATHER, TIME, FREE, BUDGET] as Row<never>[]).map((row, i) => {
-        const key = (['who', 'weather', 'timeOfDay', 'freeMinutes', 'budget'] as const)[i];
+      {([WHO, WEATHER, TIME, FREE] as Row<never>[]).map((row, i) => {
+        const key = (['who', 'weather', 'timeOfDay', 'freeMinutes'] as const)[i];
         return (
           <div className="field" key={row.label}>
             <div className="field-label">{row.label}</div>
@@ -137,6 +138,45 @@ export default function SearchPage() {
           </div>
         );
       })}
+
+      <div className="field">
+        <div className="field-label">予算</div>
+        <div className="budget-range">
+          <select
+            className="select"
+            value={c.budgetMin ?? ''}
+            onChange={(e) =>
+              setC((prev) => ({
+                ...prev,
+                budgetMin: e.target.value === '' ? null : Number(e.target.value),
+              }))
+            }
+          >
+            {YEN_OPTIONS.map((o) => (
+              <option key={String(o.value)} value={o.value ?? ''}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <span className="budget-range-sep">〜</span>
+          <select
+            className="select"
+            value={c.budgetMax ?? ''}
+            onChange={(e) =>
+              setC((prev) => ({
+                ...prev,
+                budgetMax: e.target.value === '' ? null : Number(e.target.value),
+              }))
+            }
+          >
+            {YEN_OPTIONS.map((o) => (
+              <option key={String(o.value)} value={o.value ?? ''}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {chosen > 0 && (
         <button className="btn btn-ghost" onClick={() => setC(EMPTY_CONDITIONS)}>

@@ -367,6 +367,24 @@ body {
 /* ---- 投稿フォーム ---- */
 .input,
 .textarea,
+/* 予算：下限〜上限の範囲選択 */
+.budget-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budget-range .select {
+  flex: 1;
+  min-width: 0;
+}
+
+.budget-range-sep {
+  color: var(--muted);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
 .select {
   width: 100%;
   padding: 11px 12px;
@@ -1312,6 +1330,8 @@ body {
 }
 
 .nav-icon {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
 }

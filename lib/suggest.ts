@@ -20,7 +20,9 @@ export type Conditions = {
   who: 'solo' | 'pair' | 'group' | null;
   weather: 'sunny' | 'rain' | null;
   freeMinutes: number | null;
-  budget: 0 | 1 | 2 | null;
+  /** 予算は下限・上限の円額で範囲指定する（単一の段階選択ではない） */
+  budgetMin: number | null;
+  budgetMax: number | null;
   timeOfDay: 'morning' | 'day' | 'night' | null;
 };
 
@@ -30,8 +32,20 @@ export const EMPTY_CONDITIONS: Conditions = {
   who: null,
   weather: null,
   freeMinutes: null,
-  budget: null,
+  budgetMin: null,
+  budgetMax: null,
   timeOfDay: null,
+};
+
+/**
+ * 投稿の budget（0=かからない／1=〜1000円／2=1000円〜）を、
+ * 範囲比較に使う円額の目安に変換する。
+ * データモデル自体は変えず、検索側だけで円額として扱う。
+ */
+export const BUDGET_YEN: Record<0 | 1 | 2, number> = {
+  0: 0,
+  1: 800,
+  2: 2500,
 };
 
 export type Scored = {
@@ -106,9 +120,14 @@ function scoreSoft(post: Post, c: Conditions): Scored {
     );
   }
 
-  if (c.budget !== null && post.budget <= c.budget) {
-    score += WEIGHT.budget;
-    reasons.push(post.budget === 0 ? 'お金がかからない' : '予算内');
+  if (c.budgetMin !== null || c.budgetMax !== null) {
+    const yen = BUDGET_YEN[post.budget];
+    const aboveMin = c.budgetMin === null || yen >= c.budgetMin;
+    const belowMax = c.budgetMax === null || yen <= c.budgetMax;
+    if (aboveMin && belowMax) {
+      score += WEIGHT.budget;
+      reasons.push(yen === 0 ? 'お金がかからない' : '予算内');
+    }
   }
 
   return { post, score, reasons };
