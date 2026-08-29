@@ -6,7 +6,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import BackButton from '@/components/BackButton';
 import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
 import { Post, getPost } from '@/lib/posts';
@@ -21,7 +22,6 @@ import {
 
 export default function PostDetailPage() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
 
   // 自分の投稿は localStorage にあるので、初期表示では見つからない。
   // 描画後に探し直す。
@@ -100,9 +100,7 @@ export default function PostDetailPage() {
   return (
     <main>
       <div className="detail-head">
-        <button className="back" onClick={() => router.back()}>
-          ← 戻る
-        </button>
+        <BackButton fallback="/home" />
         <PointBadge />
       </div>
 

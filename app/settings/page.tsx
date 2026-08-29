@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BackButton from '@/components/BackButton';
 import { DEFAULT_SETTINGS, Settings, getSettings, saveSettings } from '@/lib/settings';
 import { INITIAL_POINTS, resetAll } from '@/lib/points';
 
@@ -26,9 +27,7 @@ export default function SettingsPage() {
   return (
     <main>
       <div className="detail-head">
-        <button className="back" onClick={() => router.back()}>
-          ← 戻る
-        </button>
+        <BackButton fallback="/me" />
         {saved && <span className="saved-flag">保存しました</span>}
       </div>
 

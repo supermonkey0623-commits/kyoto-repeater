@@ -6,7 +6,7 @@
 // 入力内容を持ってメールアプリを開く（これは実際に動く）。
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import BackButton from '@/components/BackButton';
 
 // ★チームの連絡先に差し替える。空のままだと問い合わせ欄は無効表示になる。
 const SUPPORT_EMAIL = '';
@@ -43,7 +43,6 @@ const QA: { q: string; a: string }[] = [
 ];
 
 export default function HelpPage() {
-  const router = useRouter();
   const [open, setOpen] = useState<number | null>(0);
   const [email, setEmail] = useState('');
   const [body, setBody] = useState('');
@@ -61,9 +60,7 @@ export default function HelpPage() {
   return (
     <main>
       <div className="detail-head">
-        <button className="back" onClick={() => router.back()}>
-          ← 戻る
-        </button>
+        <BackButton fallback="/me" />
       </div>
 
       <h1 className="page-title">ヘルプ</h1>

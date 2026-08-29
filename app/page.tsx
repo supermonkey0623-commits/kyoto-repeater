@@ -6,24 +6,25 @@
 // 代わりに、タップした有名スポットをそのまま比較の左側に使う。
 // 「検索すると定番ばかり」という課題定義を、そのまま画面で証明する。
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FAMOUS_SPOTS, IS_CURATED_DATA, SUGGEST_SPOTS } from '@/lib/data';
-import { set } from '@/lib/storage';
-
-// 人による選別が済むと自動で消える（消し忘れ防止）
-function DataBanner() {
-  if (IS_CURATED_DATA) return null;
-  return (
-    <div className="dummy-banner">
-      未選別データで動作中（{SUGGEST_SPOTS.length}件）。人の目による選別が未完了です。
-    </div>
-  );
-}
+import { FAMOUS_SPOTS, SUGGEST_SPOTS } from '@/lib/data';
+import { get, set } from '@/lib/storage';
 
 export default function OnboardingPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [done, setDone] = useState(false);
+
+  // 選んだ内容は保存してあるので、戻ってきたときに選び直さなくていい
+  useEffect(() => setSelected(get('visited')), []);
+
+  // 2画面目は URL が変わらないため、端末の「戻る」だと
+  // アプリごと出てしまう。履歴を1つ積んで、戻ると選び直しに帰るようにする
+  useEffect(() => {
+    const onPop = () => setDone(false);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const toggle = (id: string) => {
     setSelected((prev) =>
@@ -34,6 +35,7 @@ export default function OnboardingPage() {
   const confirm = () => {
     set('visited', selected);
     setDone(true);
+    window.history.pushState({ step: 'compare' }, '');
   };
 
   if (done) {
@@ -49,7 +51,9 @@ export default function OnboardingPage() {
 
     return (
       <main>
-        <DataBanner />
+        <button className="back" onClick={() => window.history.back()}>
+          ← 選び直す
+        </button>
 
         <h1 className="page-title">あなたが見てきた京都</h1>
         <p className="page-lead">
@@ -96,8 +100,6 @@ export default function OnboardingPage() {
 
   return (
     <main>
-      <DataBanner />
-
       <h1 className="page-title">京都で行ったことある場所は？</h1>
       <p className="page-lead">
         タップして選んでください。選んだ場所は提案から除外されます。

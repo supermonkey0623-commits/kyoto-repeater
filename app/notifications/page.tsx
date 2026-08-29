@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import BackButton from '@/components/BackButton';
 import {
   AppNotification,
   clearNotifications,
@@ -21,7 +21,6 @@ const ICON: Record<string, string> = {
 };
 
 export default function NotificationsPage() {
-  const router = useRouter();
   const [list, setList] = useState<AppNotification[]>([]);
   const [ready, setReady] = useState(false);
 
@@ -36,9 +35,7 @@ export default function NotificationsPage() {
   return (
     <main>
       <div className="detail-head">
-        <button className="back" onClick={() => router.back()}>
-          ← 戻る
-        </button>
+        <BackButton fallback="/me" />
         {list.length > 0 && (
           <button
             className="back"
