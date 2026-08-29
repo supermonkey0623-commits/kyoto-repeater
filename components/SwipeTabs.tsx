@@ -1,88 +1,91 @@
 'use client';
 
-// 左右スワイプでボトムメニューを切り替える。
+// 左右スワイプでボトムメニューを切り替える。指の動きに画面が追従する。
 //
-// 注意点:
-// - 縦スクロールを邪魔しないよう、横方向がはっきり優勢なときだけ反応する
-// - 横スクロールする要素（チップ列など）の上から始まったスワイプは無視する
-// - タブ以外の画面（検索・投稿詳細）では無効。戻る操作と競合するため
+// 挙動:
+// - ドラッグ中は指に吸い付いて画面が動く
+// - 閾値を超える／速く弾くと、その方向へ送り出して次のタブへ
+// - 足りなければゴムのように元へ戻る
+// - 端（最初・最後のタブ）では抵抗を強くして、行き止まりを手で分からせる
+//
+// 制約: ルートを分けたままなので、ドラッグ中に隣の画面は覗けない。
+//       3画面を横に並べるにはルート構造の作り直しが必要。
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+} from 'motion/react';
 
-/** ボトムメニューと同じ並び。左スワイプで次、右スワイプで前へ */
+/** ボトムメニューと同じ並び。左へ引くと次、右へ引くと前 */
 export const TAB_ORDER = ['/home', '/new', '/me'] as const;
 
-const MIN_DISTANCE = 60; // px。これ未満はタップのぶれとみなす
-const RATIO = 1.5; // 横が縦の1.5倍を超えたら横スワイプ
-const MAX_DURATION = 700; // ms
+const DISTANCE = 70; // px。これを超えたら切り替え
+const VELOCITY = 480; // px/s。速く弾いた場合は距離が足りなくても切り替え
 
-function startedOnScrollable(target: EventTarget | null): boolean {
-  // target は要素とは限らない（window / document / テキストノード）。
-  // getComputedStyle に要素以外を渡すと例外になるので必ず絞り込む。
-  let el = target instanceof Element ? (target as HTMLElement) : null;
-  try {
-    while (el && el !== document.body) {
-      const style = window.getComputedStyle(el);
-      if (
-        (style.overflowX === 'auto' || style.overflowX === 'scroll') &&
-        el.scrollWidth > el.clientWidth
-      ) {
-        return true;
-      }
-      el = el.parentElement;
-    }
-  } catch {
-    // 判定できないときはスワイプを許可する（機能が死ぬより良い）
-    return false;
-  }
-  return false;
-}
+const SPRING = { type: 'spring', stiffness: 420, damping: 38, mass: 0.7 } as const;
 
 export default function SwipeTabs({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const start = useRef<{ x: number; y: number; t: number; skip: boolean } | null>(null);
+  const reduced = useReducedMotion();
+  const x = useMotionValue(0);
 
+  // 切り替え方向。入場アニメーションをどちらから始めるかに使う
+  const [dir, setDir] = useState(0);
+
+  const index = TAB_ORDER.indexOf(pathname as (typeof TAB_ORDER)[number]);
+  const isTab = index !== -1;
+  const canPrev = isTab && index > 0;
+  const canNext = isTab && index < TAB_ORDER.length - 1;
+
+  // 画面が変わったら位置をリセットしておく（前の画面のずれを持ち越さない）
   useEffect(() => {
-    const index = TAB_ORDER.indexOf(pathname as (typeof TAB_ORDER)[number]);
-    if (index === -1) return; // タブ以外の画面では無効
+    x.set(0);
+  }, [pathname, x]);
 
-    const onStart = (e: TouchEvent) => {
-      const t = e.touches[0];
-      start.current = {
-        x: t.clientX,
-        y: t.clientY,
-        t: Date.now(),
-        skip: startedOnScrollable(e.target),
-      };
-    };
+  // タブ以外（検索・投稿詳細）ではドラッグさせない。戻る操作と競合するため
+  if (!isTab || reduced) return <>{children}</>;
 
-    const onEnd = (e: TouchEvent) => {
-      const s = start.current;
-      start.current = null;
-      if (!s || s.skip) return;
+  const go = (delta: number) => {
+    const next = index + delta;
+    if (next < 0 || next >= TAB_ORDER.length) return;
+    setDir(delta);
+    router.push(TAB_ORDER[next]);
+  };
 
-      const t = e.changedTouches[0];
-      const dx = t.clientX - s.x;
-      const dy = t.clientY - s.y;
-
-      if (Date.now() - s.t > MAX_DURATION) return;
-      if (Math.abs(dx) < MIN_DISTANCE) return;
-      if (Math.abs(dx) < Math.abs(dy) * RATIO) return;
-
-      const next = dx < 0 ? index + 1 : index - 1;
-      if (next < 0 || next >= TAB_ORDER.length) return;
-      router.push(TAB_ORDER[next]);
-    };
-
-    window.addEventListener('touchstart', onStart, { passive: true });
-    window.addEventListener('touchend', onEnd, { passive: true });
-    return () => {
-      window.removeEventListener('touchstart', onStart);
-      window.removeEventListener('touchend', onEnd);
-    };
-  }, [pathname, router]);
-
-  return <>{children}</>;
+  return (
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.div
+        key={pathname}
+        style={{ x, touchAction: 'pan-y' }}
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        // 行き先がない方向は抵抗を強くして、端であることを指に返す
+        dragElastic={{
+          left: canNext ? 0.55 : 0.06,
+          right: canPrev ? 0.55 : 0.06,
+          top: 0,
+          bottom: 0,
+        }}
+        dragMomentum={false}
+        onDragEnd={(_, info) => {
+          const far = Math.abs(info.offset.x) > DISTANCE;
+          const fast = Math.abs(info.velocity.x) > VELOCITY;
+          if (!far && !fast) return; // 足りなければ元へ戻る（constraintsが戻す）
+          if (info.offset.x < 0 && canNext) go(1);
+          else if (info.offset.x > 0 && canPrev) go(-1);
+        }}
+        initial={{ x: dir === 0 ? 0 : dir > 0 ? 220 : -220, opacity: dir === 0 ? 1 : 0.4 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={SPRING}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
 }
