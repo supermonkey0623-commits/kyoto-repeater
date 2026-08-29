@@ -9,6 +9,8 @@
 //   - 追加: 誰でも可（文字数と画像サイズに上限）
 //   - 更新・削除: ポリシーを作っていないので誰もできない
 //   - 「✨新しい」の加算だけ、本文を書き換えられない関数経由で許可
+//   - 自分の投稿の削除は kyoto_delete_post 経由。投稿時に端末で作った
+//     秘密の文字列を知っていないと通らない（DBにはハッシュしか無い）
 //
 // SDKは入れずに fetch で叩く。依存を増やさないため。
 
@@ -48,8 +50,57 @@ function rememberMyPost(id: string): void {
   }
 }
 
+function forgetMyPost(id: string): void {
+  try {
+    window.localStorage.setItem(
+      MINE_KEY,
+      JSON.stringify(getMyPostIds().filter((x) => x !== id))
+    );
+  } catch {
+    // 消せなくても投稿自体は消えている
+  }
+}
+
 export function isMyPost(id: string): boolean {
   return getMyPostIds().includes(id);
+}
+
+// 削除用の合言葉。投稿ごとに作り、この端末にだけ残す。
+// DBにはこれのハッシュしか入らないので、他の端末からは消せない。
+const TOKENS_KEY = 'kyoto-repeater/postTokens';
+
+function readTokens(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(TOKENS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeTokens(map: Record<string, string>): void {
+  try {
+    window.localStorage.setItem(TOKENS_KEY, JSON.stringify(map));
+  } catch {
+    // 保存できないと消せなくなるが、投稿はできる
+  }
+}
+
+function newToken(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256Hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** 削除できる投稿か。合言葉を持っていない投稿は消せない */
+export function canDeletePost(id: string): boolean {
+  return isMyPost(id) && Boolean(readTokens()[id]);
 }
 
 export type RemotePost = Post & {
@@ -163,6 +214,17 @@ export async function createRemotePost(
   p: NewRemotePost
 ): Promise<{ ok: boolean; error?: string }> {
   try {
+    // 合言葉を作ってハッシュだけ送る。作れない環境でも投稿は通す（消せなくなるだけ）
+    let token: string | null = null;
+    let tokenHash: string | null = null;
+    try {
+      token = newToken();
+      tokenHash = await sha256Hex(token);
+    } catch {
+      token = null;
+      tokenHash = null;
+    }
+
     const res = await fetch(TABLE, {
       method: 'POST',
       headers: { ...HEADERS, Prefer: 'return=minimal' },
@@ -184,6 +246,7 @@ export async function createRemotePost(
         lat: p.lat ?? null,
         lng: p.lng ?? null,
         author: 'みんなの投稿',
+        delete_token_hash: tokenHash,
       }),
     });
 
@@ -199,10 +262,39 @@ export async function createRemotePost(
     }
 
     rememberMyPost(p.id);
+    if (token) writeTokens({ ...readTokens(), [p.id]: token });
     return { ok: true };
   } catch {
     return { ok: false, error: '共有に失敗しました。通信環境を確認してください。' };
   }
+}
+
+/**
+ * 自分の投稿を消す。合言葉が合った時だけDB側が消してくれる。
+ * テーブルにDELETEポリシーは無いので、この関数以外からは消せない。
+ */
+export async function deleteRemotePost(id: string): Promise<boolean> {
+  const token = readTokens()[id];
+  if (!token) return false;
+
+  try {
+    const res = await fetch(`${URL}/rest/v1/rpc/kyoto_delete_post`, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ p_id: id, p_token: token }),
+    });
+    if (!res.ok) return false;
+    // 関数は消せたかどうかを true/false で返す
+    if ((await res.json()) !== true) return false;
+  } catch {
+    return false;
+  }
+
+  const rest = readTokens();
+  delete rest[id];
+  writeTokens(rest);
+  forgetMyPost(id);
+  return true;
 }
 
 /** 「✨新しい」を1つ足す。本文は書き換えられない関数経由 */

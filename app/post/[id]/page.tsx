@@ -6,12 +6,18 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import BackButton from '@/components/BackButton';
 import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
 import { Post, getPost } from '@/lib/posts';
-import { addRemoteReaction, fetchRemotePost, isMyPost } from '@/lib/remotePosts';
+import {
+  addRemoteReaction,
+  canDeletePost,
+  deleteRemotePost,
+  fetchRemotePost,
+  isMyPost,
+} from '@/lib/remotePosts';
 import {
   getBalance,
   getReacted,
@@ -22,6 +28,7 @@ import {
 
 export default function PostDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
 
   // 自分の投稿は localStorage にあるので、初期表示では見つからない。
   // 描画後に探し直す。
@@ -34,11 +41,15 @@ export default function PostDetailPage() {
   const [shortfall, setShortfall] = useState(false);
 
   const [isMine, setIsMine] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     let alive = true;
     const mine = isMyPost(params.id);
     setIsMine(mine);
+    setCanDelete(canDeletePost(params.id));
     setBalance(getBalance());
     setReacted(getReacted());
 
@@ -95,6 +106,19 @@ export default function PostDetailPage() {
 
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('この投稿を消します。元に戻せません。よろしいですか？')) return;
+    setDeleting(true);
+    setDeleteError('');
+    const ok = await deleteRemotePost(post.id);
+    if (ok) {
+      router.push('/me');
+      return;
+    }
+    setDeleting(false);
+    setDeleteError('削除できませんでした。通信環境を確認してください。');
+  };
+
   const hasReacted = reacted.includes(post.id);
 
   return (
@@ -144,9 +168,25 @@ export default function PostDetailPage() {
 
           {/* 自分の投稿には押せない。自分で自分に送るのはおかしい */}
           {isMine ? (
-            <p className="hint" style={{ textAlign: 'center' }}>
-              あなたの投稿です。読んだ人が「役に立った」を送ると1ptが入ります。
-            </p>
+            <>
+              <p className="hint" style={{ textAlign: 'center' }}>
+                あなたの投稿です。読んだ人が「役に立った」を送ると1ptが入ります。
+              </p>
+              {canDelete && (
+                <button
+                  className="btn btn-ghost danger"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? '削除しています…' : 'この投稿を削除する'}
+                </button>
+              )}
+              {deleteError && (
+                <p className="hint" style={{ textAlign: 'center', color: 'var(--danger)' }}>
+                  {deleteError}
+                </p>
+              )}
+            </>
           ) : (
             <>
               <button

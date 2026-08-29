@@ -329,15 +329,30 @@ body {
    投稿カード — 写真を主役に
    ============================================================ */
 .post-card {
-  padding-bottom: 26px;
-  margin-bottom: 26px;
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
 }
 
-/* 最後の1件の下に線を残すと、続きがあるように見えてしまう */
+/* 投稿の切れ目。1pxの線では写真に負けて見えないので、
+   .shell の左右余白ぶん外へ出した帯にする */
+.post-card::after {
+  content: '';
+  position: absolute;
+  left: -20px;
+  right: -20px;
+  bottom: 0;
+  height: 8px;
+  background: var(--surface-3);
+}
+
+/* 最後の1件の下に帯を残すと、続きがあるように見えてしまう */
 .post-card:last-of-type {
   padding-bottom: 8px;
-  border-bottom: none;
+}
+
+.post-card:last-of-type::after {
+  display: none;
 }
 
 .post-link {
