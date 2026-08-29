@@ -499,6 +499,9 @@ body {
   height: 104px;
   border-radius: 10px;
   flex-shrink: 0;
+  /* 縦横比の違う写真が来ても崩れないよう、中央を切り抜く */
+  object-fit: cover;
+  display: block;
 }
 
 .photo-wide {

@@ -22,6 +22,8 @@ export type Post = {
   reviewCount: number;
   /** 閲覧に必要なポイント */
   costPt: number;
+  /** public/photos/<id>.jpg を置いたら true にする。false ならグラデーションで埋める */
+  hasPhoto?: boolean;
 };
 
 export const POSTS: Post[] = [

@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import PhotoPlaceholder from '@/components/PhotoPlaceholder';
+import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
 import { FAMOUS_AVG, FAMOUS_AVG_COUNT } from '@/lib/data';
 import { getPost } from '@/lib/posts';
@@ -84,7 +84,12 @@ export default function PostDetailPage() {
       <h1 className="detail-title">{post.title}</h1>
       <p className="post-area">📍 {post.area}</p>
 
-      <PhotoPlaceholder seed={post.id} ratio="wide" />
+      <Photo
+        id={post.id}
+        hasPhoto={post.hasPhoto}
+        alt={post.title}
+        ratio="wide"
+      />
 
       {open ? (
         <>
