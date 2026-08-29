@@ -14,7 +14,7 @@ import {
   getUnlocked,
   resetAll,
 } from '@/lib/points';
-import { UserPost, getUserPosts, removeUserPost } from '@/lib/userPosts';
+import { RemotePost, fetchRemotePosts, getMyPostIds } from '@/lib/remotePosts';
 import { getUnreadCount } from '@/lib/notifications';
 import { DEFAULT_SETTINGS, Settings, getSettings } from '@/lib/settings';
 
@@ -22,7 +22,8 @@ export default function MePage() {
   const [balance, setBalance] = useState<number | null>(null);
   const [unlocked, setUnlocked] = useState<string[]>([]);
   const [reacted, setReacted] = useState<string[]>([]);
-  const [mine, setMine] = useState<UserPost[]>([]);
+  const [mine, setMine] = useState<RemotePost[]>([]);
+  const [allRemote, setAllRemote] = useState<RemotePost[]>([]);
   const [tab, setTab] = useState<'mine' | 'read'>('mine');
   const [menuOpen, setMenuOpen] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -32,19 +33,29 @@ export default function MePage() {
     setBalance(getBalance());
     setUnlocked(getUnlocked());
     setReacted(getReacted());
-    setMine(getUserPosts());
     setUnread(getUnreadCount());
     setSettings(getSettings());
   };
 
-  useEffect(load, []);
+  useEffect(() => {
+    load();
+    // 自分の投稿も共有DBから引く（端末に覚えたIDで絞る）
+    fetchRemotePosts().then((list) => {
+      setAllRemote(list);
+      const ids = getMyPostIds();
+      setMine(list.filter((p) => ids.includes(p.id)));
+    });
+  }, []);
 
   // 自分の投稿が受け取った「✨新しい」の数。
   // 他の人からの反応は、アカウントが無いので今は届かない（記録はこの端末のみ）。
-  const received = mine.filter((p) => reacted.includes(p.id)).length;
+  const received = mine.reduce((sum, p) => sum + (p.reactions ?? 0), 0);
 
   // 「読んだ投稿」に自分の投稿は含めない。自分で書いたものを読んだとは言わない。
-  const readPosts = POSTS.filter((p) => unlocked.includes(p.id));
+  const myIds = new Set(mine.map((p) => p.id));
+  const readPosts = [...allRemote, ...POSTS].filter(
+    (p) => unlocked.includes(p.id) && !myIds.has(p.id)
+  );
 
   const list = tab === 'mine' ? mine : readPosts;
 
@@ -158,7 +169,6 @@ export default function MePage() {
       ) : (
         list.map((p) => {
           const isMine = tab === 'mine';
-          const got = reacted.includes(p.id);
           return (
             <div key={p.id} className="mine-row">
               <Link href={`/post/${p.id}`} className="mine-link">
@@ -166,7 +176,7 @@ export default function MePage() {
                   id={p.id}
                   hasPhoto={p.hasPhoto}
                   photoKind={p.photoKind}
-                  src={(p as UserPost).photoDataUrl}
+                  src={(p as RemotePost).photoDataUrl}
                   alt={p.title}
                 />
                 <div className="hit-body">
@@ -174,19 +184,12 @@ export default function MePage() {
                   <div className="post-title">{p.title}</div>
                   {isMine && (
                     <div className="reasons">
-                      <span className="reason">✨ {got ? 1 : 0}</span>
+                      <span className="reason">✨ {(p as RemotePost).reactions ?? 0}</span>
                     </div>
                   )}
                 </div>
               </Link>
-              {isMine && (
-                <button
-                  className="btn-sm"
-                  onClick={() => setMine(removeUserPost(p.id))}
-                >
-                  削除
-                </button>
-              )}
+
             </div>
           );
         })

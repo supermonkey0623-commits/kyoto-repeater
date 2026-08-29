@@ -11,7 +11,7 @@ import Photo from '@/components/Photo';
 import { CATEGORIES, CategoryId } from '@/lib/data';
 import { GeoPoint, mapsUrl, readGeoFromFile } from '@/lib/exif';
 import { fileToThumbnail } from '@/lib/image';
-import { addUserPost } from '@/lib/userPosts';
+import { createRemotePost } from '@/lib/remotePosts';
 import { notify } from '@/lib/notifications';
 
 const WHO = [
@@ -118,6 +118,8 @@ export default function NewPostPage() {
   const [budget, setBudget] = useState<0 | 1 | 2>(0);
 
   const [error, setError] = useState('');
+  const [done, setDone] = useState<{ id: string; photo: string | null } | null>(null);
+  const [sending, setSending] = useState(false);
 
   const onPick = async (file?: File) => {
     if (!file) return;
@@ -146,44 +148,59 @@ export default function NewPostPage() {
   const canSubmit =
     title.trim() !== '' && body.trim() !== '' && categories.length > 0;
 
-  const submit = () => {
+  const submit = async () => {
+    setSending(true);
+    setError('');
     const id = `u${Date.now()}`;
-    const result = addUserPost({
+
+    // みんなが見られるよう共有DBへ送る
+    const result = await createRemotePost({
       id,
       tag: place.trim() ? place.trim().slice(0, 6) : '投稿',
       title: title.trim(),
       area: place.trim() || '京都府',
-      place: place.trim() || (geo ? `${geo.lat.toFixed(5)}, ${geo.lng.toFixed(5)}` : ''),
+      place: place.trim() || (geo ? `${geo.lat.toFixed(5)}, ${geo.lng.toFixed(5)}` : undefined),
       mapQuery: place.trim() || undefined,
       body: body.trim(),
       categories,
-      author: 'あなたの投稿',
       isIndoor,
       minutes,
       budget,
       timeOfDay: [timeOfDay],
       who: [who],
-      costPt: 1,
-      hasPhoto: Boolean(photo),
-      photoKind: 'real',
       photoDataUrl: photo ?? undefined,
       lat: geo?.lat,
       lng: geo?.lng,
-      createdAt: new Date().toISOString(),
     });
 
+    setSending(false);
+
     if (!result.ok) {
-      setError('写真が大きくて保存しきれませんでした。本文だけ保存しています。');
+      setError(result.error ?? '共有に失敗しました。');
       return;
     }
+
     notify({
       kind: 'posted',
       title: '投稿を公開しました',
       body: title.trim(),
       postId: id,
     });
-    router.push(`/post/${id}`);
+    setDone({ id, photo });
   };
+
+  if (done) {
+    return (
+      <main className="done-screen">
+        {done.photo ? (
+          <Photo id={done.id} src={done.photo} alt="投稿した写真" ratio="wide" />
+        ) : (
+          <Photo id={done.id} alt="投稿した写真" ratio="wide" />
+        )}
+        <p className="done-text">投稿完了</p>
+      </main>
+    );
+  }
 
   return (
     <main>
@@ -380,8 +397,8 @@ export default function NewPostPage() {
 
       {error && <p className="hint" style={{ color: '#b34' }}>{error}</p>}
 
-      <button className="btn" disabled={!canSubmit} onClick={submit}>
-        投稿する
+      <button className="btn" disabled={!canSubmit || sending} onClick={submit}>
+        {sending ? '共有しています…' : '投稿する'}
       </button>
 
     </main>

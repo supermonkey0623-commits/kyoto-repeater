@@ -10,7 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
 import { Post, getPost } from '@/lib/posts';
-import { getUserPosts } from '@/lib/userPosts';
+import { addRemoteReaction, fetchRemotePost, isMyPost } from '@/lib/remotePosts';
 import { notify } from '@/lib/notifications';
 import { getSettings } from '@/lib/settings';
 import {
@@ -35,15 +35,33 @@ export default function PostDetailPage() {
   const [reacted, setReacted] = useState<string[]>([]);
   const [shortfall, setShortfall] = useState(false);
 
+  const [isMine, setIsMine] = useState(false);
+
   useEffect(() => {
-    const found =
-      getPost(params.id) ?? getUserPosts().find((p) => p.id === params.id);
-    setPost(found);
-    setReady(true);
-    if (!found) return;
-    setOpen(isUnlocked(found.id));
+    let alive = true;
+    const mine = isMyPost(params.id);
+    setIsMine(mine);
     setBalance(getBalance());
     setReacted(getReacted());
+
+    const seed = getPost(params.id);
+    if (seed) {
+      setPost(seed);
+      setOpen(isUnlocked(seed.id));
+      setReady(true);
+      return;
+    }
+    // 種データに無ければ共有DBから引く
+    fetchRemotePost(params.id).then((found) => {
+      if (!alive) return;
+      setPost(found ?? undefined);
+      // 自分の投稿にポイントは要らない。書いた本人が買うのはおかしい
+      if (found) setOpen(mine || isUnlocked(found.id));
+      setReady(true);
+    });
+    return () => {
+      alive = false;
+    };
   }, [params.id]);
 
   if (!post) {
@@ -74,10 +92,11 @@ export default function PostDetailPage() {
     setBalance(res.balance);
     setReacted(res.reacted);
 
-    // 自分の投稿に反応が付いたら通知する。
-    // 他人からの反応はアカウントが要るので、いまはこの端末で起きた分だけ。
-    const isMine = getUserPosts().some((p) => p.id === post.id);
-    if (isMine && getSettings().notifyReaction) {
+    // 共有DBのカウントも増やす
+    addRemoteReaction(post.id);
+
+    // 自分の投稿に反応が付いたら通知する
+    if (isMyPost(post.id) && getSettings().notifyReaction) {
       notify({
         kind: 'reaction',
         title: '「✨新しい」が届きました',
@@ -137,17 +156,26 @@ export default function PostDetailPage() {
 
           <p className="detail-body">{post.body}</p>
 
-          <button
-            className="btn"
-            onClick={handleReact}
-            disabled={hasReacted}
-            style={hasReacted ? { background: '#b9bcd0' } : undefined}
-          >
-            {hasReacted ? '✨ 「新しい」を送りました（+1pt）' : '✨ 新しい（+1pt）'}
-          </button>
-          <p className="hint" style={{ textAlign: 'center' }}>
-            知らなかった場所だと感じたら押してください。投稿者にポイントが入ります。
-          </p>
+          {/* 自分の投稿には押せない。自分で自分に送るのはおかしい */}
+          {isMine ? (
+            <p className="hint" style={{ textAlign: 'center' }}>
+              あなたの投稿です。読んだ人が「✨新しい」を送るとポイントが入ります。
+            </p>
+          ) : (
+            <>
+              <button
+                className="btn"
+                onClick={handleReact}
+                disabled={hasReacted}
+                style={hasReacted ? { background: '#b9bcd0' } : undefined}
+              >
+                {hasReacted ? '✨ 「新しい」を送りました（+1pt）' : '✨ 新しい（+1pt）'}
+              </button>
+              <p className="hint" style={{ textAlign: 'center' }}>
+                知らなかった場所だと感じたら押してください。投稿者にポイントが入ります。
+              </p>
+            </>
+          )}
         </>
       ) : (
         <div className="paywall">

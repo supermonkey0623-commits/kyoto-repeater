@@ -9,18 +9,27 @@ import { useEffect, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
 import { IS_SAMPLE, POSTS } from '@/lib/posts';
-import { UserPost, getUserPosts } from '@/lib/userPosts';
+import { RemotePost, fetchRemotePosts } from '@/lib/remotePosts';
 
 export default function HomePage() {
-  const [mine, setMine] = useState<UserPost[]>([]);
+  const [remote, setRemote] = useState<RemotePost[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // みんなの投稿を共有DBから読む。取れなくても種データだけで動く。
   useEffect(() => {
-    setMine(getUserPosts());
+    let alive = true;
+    fetchRemotePosts().then((list) => {
+      if (!alive) return;
+      setRemote(list);
+      setLoading(false);
+    });
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  // カテゴリの絞り込みはかんたん検索側に集約したので、ここでは全件を出す。
-  // 自分の投稿は新しいので先頭に置く。
-  const posts = [...mine, ...POSTS];
+  // 新しい投稿を先に、そのあと種データ
+  const posts = [...remote, ...POSTS];
 
   return (
     <main>
@@ -47,8 +56,14 @@ export default function HomePage() {
 
 
 
+      {loading && remote.length === 0 && (
+        <p className="hint" style={{ marginBottom: 12 }}>
+          みんなの投稿を読み込んでいます…
+        </p>
+      )}
+
       {posts.length === 0 ? (
-        <p className="empty">このカテゴリの投稿はまだありません。</p>
+        <p className="empty">まだ投稿がありません。</p>
       ) : (
         posts.map((post) => (
           <PostCard key={post.id} post={post} />

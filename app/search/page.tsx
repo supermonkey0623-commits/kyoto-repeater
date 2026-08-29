@@ -8,7 +8,7 @@ import Link from 'next/link';
 import PointBadge from '@/components/PointBadge';
 import { CATEGORIES, CategoryId } from '@/lib/data';
 import { POSTS } from '@/lib/posts';
-import { UserPost, getUserPosts } from '@/lib/userPosts';
+import { RemotePost, fetchRemotePosts } from '@/lib/remotePosts';
 import {
   Conditions,
   EMPTY_CONDITIONS,
@@ -67,14 +67,16 @@ const BUDGET: Row<0 | 1 | 2> = {
 export default function SearchPage() {
   const [c, setC] = useState<Conditions>(EMPTY_CONDITIONS);
   
-  const [mine, setMine] = useState<UserPost[]>([]);
+  const [remote, setRemote] = useState<RemotePost[]>([]);
 
-  useEffect(() => setMine(getUserPosts()), []);
+  useEffect(() => {
+    fetchRemotePosts().then(setRemote);
+  }, []);
 
   const set = <K extends keyof Conditions>(key: K, value: Conditions[K]) =>
     setC((prev) => ({ ...prev, [key]: prev[key] === value ? null : value }));
 
-  const results = useMemo(() => suggest([...mine, ...POSTS], c, 8), [c, mine]);
+  const results = useMemo(() => suggest([...remote, ...POSTS], c, 8), [c, remote]);
   const chosen = countChosen(c);
 
   return (
