@@ -5,7 +5,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import SpotCard from '@/components/SpotCard';
-import { CATEGORIES, CategoryId, SUGGEST_SPOTS } from '@/lib/data';
+import {
+  CATEGORIES,
+  CategoryId,
+  IS_CURATED_DATA,
+  SUGGEST_SPOTS,
+} from '@/lib/data';
 import { add, get } from '@/lib/storage';
 
 const PARTY = ['ひとり', 'ふたり', 'グループ'];
@@ -53,9 +58,11 @@ export default function SuggestPage() {
 
   return (
     <main>
-      <div className="dummy-banner">
-        ダミーデータで動作中。提案候補は {SUGGEST_SPOTS.length}件のみ（本番は300件以上）。
-      </div>
+      {!IS_CURATED_DATA && (
+        <div className="dummy-banner">
+          未選別データで動作中（{SUGGEST_SPOTS.length}件）。人の目による選別が未完了です。
+        </div>
+      )}
 
       <h1 className="page-title">今日はどんな気分？</h1>
       <p className="page-lead">

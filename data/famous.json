@@ -1,0 +1,149 @@
+{
+  "avgFamous": 29382,
+  "top20": [
+    {
+      "id": "ChIJIW0uPRUPAWAR6eI6dRzKGns",
+      "name": "伏見稲荷大社",
+      "reviewCount": 90855,
+      "rating": 4.6,
+      "lat": 34.9676945,
+      "lng": 135.7791876
+    },
+    {
+      "id": "ChIJB_vchdMIAWARujTEUIZlr2I",
+      "name": "清水寺",
+      "reviewCount": 71959,
+      "rating": 4.6,
+      "lat": 34.9946662,
+      "lng": 135.784661
+    },
+    {
+      "id": "ChIJvUbrwCCoAWARX2QiHCsn5A4",
+      "name": "金閣寺",
+      "reviewCount": 69942,
+      "rating": 4.6,
+      "lat": 35.03937,
+      "lng": 135.7292431
+    },
+    {
+      "id": "ChIJT8uMzZwIAWARnGzsARCjnrY",
+      "name": "錦市場",
+      "reviewCount": 53617,
+      "rating": 4.3,
+      "lat": 35.0050258,
+      "lng": 135.764723
+    },
+    {
+      "id": "ChIJC5srCtQHAWARLy9qkFmHaxA",
+      "name": "元離宮二条城",
+      "reviewCount": 42758,
+      "rating": 4.4,
+      "lat": 35.0140379,
+      "lng": 135.7484258
+    },
+    {
+      "id": "ChIJqewQoHkIAWAR6RokWp3Iesc",
+      "name": "八坂神社",
+      "reviewCount": 33620,
+      "rating": 4.4,
+      "lat": 35.0036559,
+      "lng": 135.7785534
+    },
+    {
+      "id": "ChIJTar7hQQGAWAREHkXsNkt7tM",
+      "name": "東寺",
+      "reviewCount": 19857,
+      "rating": 4.5,
+      "lat": 34.9803395,
+      "lng": 135.7476935
+    },
+    {
+      "id": "ChIJd9pWqK8IAWAR1L-X_-4WKew",
+      "name": "ニデック京都タワー",
+      "reviewCount": 18259,
+      "rating": 4.2,
+      "lat": 34.987520499999995,
+      "lng": 135.75925180000002
+    },
+    {
+      "id": "ChIJ4W9CCwUJAWARyauI6BzKiiU",
+      "name": "銀閣寺",
+      "reviewCount": 17764,
+      "rating": 4.5,
+      "lat": 35.0270213,
+      "lng": 135.7982058
+    },
+    {
+      "id": "ChIJs4Cbj8oIAWARiBZl2-sBK6o",
+      "name": "三十三間堂",
+      "reviewCount": 17435,
+      "rating": 4.7,
+      "lat": 34.9878845,
+      "lng": 135.7717126
+    },
+    {
+      "id": "ChIJk54PuAGqAWARwEgz_9o-nM0",
+      "name": "天龍寺",
+      "reviewCount": 17001,
+      "rating": 4.5,
+      "lat": 35.0158379,
+      "lng": 135.6737654
+    },
+    {
+      "id": "ChIJbeDwe-0HAWARGu4ubMH-Jls",
+      "name": "北野天満宮",
+      "reviewCount": 16838,
+      "rating": 4.5,
+      "lat": 35.0311737,
+      "lng": 135.7351227
+    },
+    {
+      "id": "ChIJjch8GOUIAWART0WX2JLZvnU",
+      "name": "平安神宮",
+      "reviewCount": 16228,
+      "rating": 4.4,
+      "lat": 35.0159823,
+      "lng": 135.7824263
+    },
+    {
+      "id": "ChIJ_fuXcyEJAWARTQDnx6Q5szg",
+      "name": "南禅寺",
+      "reviewCount": 12586,
+      "rating": 4.5,
+      "lat": 35.0114138,
+      "lng": 135.7944841
+    },
+    {
+      "id": "ChIJCZEK8wimAWARi1RkteQaAh0",
+      "name": "貴船神社",
+      "reviewCount": 12256,
+      "rating": 4.5,
+      "lat": 35.122090899999996,
+      "lng": 135.7629101
+    },
+    {
+      "id": "ChIJp7ocMCqoAWARQoXXRj4Xq-E",
+      "name": "龍安寺",
+      "reviewCount": 11447,
+      "rating": 4.5,
+      "lat": 35.0344943,
+      "lng": 135.71826339999998
+    },
+    {
+      "id": "ChIJd2mRAFMHAWARPSiWJOj4FOw",
+      "name": "渡月橋",
+      "reviewCount": 5503,
+      "rating": 4.5,
+      "lat": 35.0128769,
+      "lng": 135.67777479999998
+    },
+    {
+      "id": "ChIJYfiJTR0JAWAR6aLRNJZqn-k",
+      "name": "鴨川デルタ（府立公園）",
+      "reviewCount": 950,
+      "rating": 4.6,
+      "lat": 35.029858499999996,
+      "lng": 135.77176409999998
+    }
+  ]
+}

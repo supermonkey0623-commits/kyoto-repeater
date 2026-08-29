@@ -8,8 +8,18 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FAMOUS_SPOTS, SUGGEST_SPOTS } from '@/lib/data';
+import { FAMOUS_SPOTS, IS_CURATED_DATA, SUGGEST_SPOTS } from '@/lib/data';
 import { set } from '@/lib/storage';
+
+// 人による選別が済むと自動で消える（消し忘れ防止）
+function DataBanner() {
+  if (IS_CURATED_DATA) return null;
+  return (
+    <div className="dummy-banner">
+      未選別データで動作中（{SUGGEST_SPOTS.length}件）。人の目による選別が未完了です。
+    </div>
+  );
+}
 
 export default function OnboardingPage() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -39,9 +49,7 @@ export default function OnboardingPage() {
 
     return (
       <main>
-        <div className="dummy-banner">
-          ダミーデータで動作中。口コミ件数は仮の値です。
-        </div>
+        <DataBanner />
 
         <h1 className="page-title">あなたが見てきた京都</h1>
         <p className="page-lead">
@@ -88,9 +96,7 @@ export default function OnboardingPage() {
 
   return (
     <main>
-      <div className="dummy-banner">
-        ダミーデータで動作中。実データ投入は要件定義書 §7.2 を参照。
-      </div>
+      <DataBanner />
 
       <h1 className="page-title">京都で行ったことある場所は？</h1>
       <p className="page-lead">
