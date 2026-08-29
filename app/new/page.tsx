@@ -8,6 +8,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PointBadge from '@/components/PointBadge';
 import Photo from '@/components/Photo';
+import Icon from '@/components/Icon';
 import { CATEGORIES, CategoryId } from '@/lib/data';
 import { GeoPoint, mapsUrl, readGeoFromFile } from '@/lib/exif';
 import { fileToThumbnail } from '@/lib/image';
@@ -232,9 +233,11 @@ export default function NewPostPage() {
             disabled={reading}
             onClick={() => libraryRef.current?.click()}
           >
-            <span className="upload-plus">＋</span>
+            <span className="upload-plus">
+              <Icon name="image" size={26} />
+            </span>
             <span className="upload-label">
-              {reading ? '読み込み中…' : '写真を追加'}
+              {reading ? '読み込んでいます' : '写真を選ぶ'}
             </span>
           </button>
         )}
@@ -277,7 +280,7 @@ export default function NewPostPage() {
                   disabled={locating}
                   onClick={useCurrentLocation}
                 >
-                  {locating ? '取得中…' : '📍 いまいる場所を使う'}
+                  {locating ? '取得しています' : 'いまいる場所を使う'}
                 </button>
                 {locateError && (
                   <div style={{ marginTop: 6 }}>{locateError}</div>

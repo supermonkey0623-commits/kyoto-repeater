@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Photo from '@/components/Photo';
+import Icon from '@/components/Icon';
 import { POSTS } from '@/lib/posts';
 import {
   INITIAL_POINTS,
@@ -88,9 +89,7 @@ export default function MePage() {
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <Icon name="menu" size={20} />
           </button>
 
           {menuOpen && (
@@ -127,7 +126,8 @@ export default function MePage() {
             <div className="hint">ログインなしで使えます</div>
           </div>
           <span className="pt-badge">
-            ✨ {balance === null ? '—' : balance} <small>pt</small>
+            {balance === null ? '—' : balance}
+            <small>pt</small>
           </span>
         </div>
 
@@ -142,7 +142,7 @@ export default function MePage() {
           </div>
           <div className="stat">
             <div className="stat-num">{received}</div>
-            <div className="stat-label">もらった✨</div>
+            <div className="stat-label">もらった</div>
           </div>
         </div>
       </div>
@@ -198,7 +198,9 @@ export default function MePage() {
                   <div className="post-title">{p.title}</div>
                   {isMine && (
                     <div className="reasons">
-                      <span className="reason">✨ {(p as RemotePost).reactions ?? 0}</span>
+                      <span className="reason">
+                        役に立った {(p as RemotePost).reactions ?? 0}
+                      </span>
                     </div>
                   )}
                 </div>

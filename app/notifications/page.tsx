@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Icon, { IconName } from '@/components/Icon';
 import {
   AppNotification,
   clearNotifications,
@@ -14,10 +15,10 @@ import {
   relativeTime,
 } from '@/lib/notifications';
 
-const ICON: Record<string, string> = {
-  reaction: '✨',
-  posted: '📮',
-  points: '🎟',
+const ICON: Record<string, IconName> = {
+  reaction: 'spark',
+  posted: 'note',
+  points: 'spark',
 };
 
 export default function NotificationsPage() {
@@ -56,13 +57,15 @@ export default function NotificationsPage() {
         <p className="empty">
           まだ通知はありません。
           <br />
-          投稿したり、「✨新しい」を受け取るとここに届きます。
+          投稿したり、「役に立った」を受け取るとここに届きます。
         </p>
       ) : (
         list.map((n) => {
           const inner = (
             <>
-              <span className="noti-icon">{ICON[n.kind] ?? '•'}</span>
+              <span className="noti-icon">
+                <Icon name={ICON[n.kind] ?? 'note'} size={17} />
+              </span>
               <span className="noti-body">
                 <span className="noti-title">{n.title}</span>
                 {n.body && <span className="noti-text">{n.body}</span>}
@@ -86,7 +89,7 @@ export default function NotificationsPage() {
       <div className="note" style={{ marginTop: 22 }}>
         <span className="note-label">まだ届かない通知について</span>
         <p>
-          他の人があなたの投稿に「✨新しい」を送ったときの通知は、
+          他の人があなたの投稿に「役に立った」を送ったときの通知は、
           アカウント連携を入れたあとに届くようになります。
           いまはログインなしで使える設計のため、通知はこの端末の記録だけです。
         </p>

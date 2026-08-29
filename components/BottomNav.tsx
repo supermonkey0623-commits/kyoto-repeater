@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Icon, { IconName } from './Icon';
 
-// ボトムメニューは3つ。
-// 保存した投稿はプロフィール内のタブから見られるので、ここには置かない。
-const ITEMS = [
-  { href: '/home', icon: '⌂', label: 'ホーム' },
-  { href: '/new', icon: '＋', label: '投稿' },
-  { href: '/me', icon: '☺', label: 'プロフィール' },
+// 3タブ。低く、静かに、現在地だけ分かる。
+// 選択中を丸や面で囲まない。色と線の太さだけで示す。
+const ITEMS: { href: string; icon: IconName; label: string }[] = [
+  { href: '/home', icon: 'home', label: 'ホーム' },
+  { href: '/new', icon: 'plus', label: '投稿' },
+  { href: '/me', icon: 'person', label: 'プロフィール' },
 ];
 
 export default function BottomNav() {
@@ -16,16 +17,15 @@ export default function BottomNav() {
 
   return (
     <nav className="nav">
-      {ITEMS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          data-active={pathname === item.href}
-        >
-          <span className="nav-icon">{item.icon}</span>
-          {item.label}
-        </Link>
-      ))}
+      {ITEMS.map((item) => {
+        const active = pathname === item.href;
+        return (
+          <Link key={item.href} href={item.href} data-active={active}>
+            <Icon name={item.icon} size={21} strong={active} />
+            {item.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

@@ -68,7 +68,7 @@ export default function SettingsPage() {
       <label className="toggle-row">
         <span>
           <span className="toggle-title">自分の投稿への反応</span>
-          <span className="toggle-note">「✨新しい」を受け取ったとき</span>
+          <span className="toggle-note">「役に立った」を受け取ったとき</span>
         </span>
         <input
           type="checkbox"

@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import Photo from '@/components/Photo';
+import Icon from '@/components/Icon';
 import PointBadge from '@/components/PointBadge';
 import { Post, getPost } from '@/lib/posts';
 import { addRemoteReaction, fetchRemotePost, isMyPost } from '@/lib/remotePosts';
@@ -101,7 +102,8 @@ export default function PostDetailPage() {
     <main>
       <div className="detail-head">
         <button className="back" onClick={() => router.back()}>
-          ← 戻る
+          <Icon name="back" size={16} />
+          戻る
         </button>
         <PointBadge />
       </div>
@@ -135,7 +137,8 @@ export default function PostDetailPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Googleマップで開く ↗
+                  Googleマップで開く
+                  <Icon name="external" size={13} />
                 </a>
               </>
             ) : (
@@ -158,7 +161,7 @@ export default function PostDetailPage() {
                 disabled={hasReacted}
                 style={hasReacted ? { background: '#b9bcd0' } : undefined}
               >
-                {hasReacted ? '✨ 「役に立った」を送りました' : '✨ 役に立った'}
+                {hasReacted ? '「役に立った」を送りました' : '役に立った'}
               </button>
               <p className="hint" style={{ textAlign: 'center' }}>
                 行ってみたいと思えたら押してください。投稿者に1ptが入ります。

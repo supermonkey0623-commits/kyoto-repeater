@@ -24,7 +24,8 @@ export default function PointBadge() {
 
   return (
     <span className="pt-badge">
-      ✨ {pt === null ? '—' : pt} <small>pt</small>
+      {pt === null ? '—' : pt}
+      <small>pt</small>
     </span>
   );
 }

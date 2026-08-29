@@ -5,6 +5,7 @@
 // 場所は投稿を開いてから見せる（それがポイントを払って得られるもの）。
 
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 import { useEffect, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
@@ -56,9 +57,13 @@ export default function HomePage() {
 
       {/* 上のタグ行はかんたん検索の入口。条件を選んで提案を受け取る */}
       <Link href="/search" className="search-entry">
-        <span className="search-icon">🔍</span>
+        <span className="search-icon">
+          <Icon name="search" size={17} />
+        </span>
         <span className="search-text">気分・天気・空き時間から探す</span>
-        <span className="search-go">›</span>
+        <span className="search-go">
+          <Icon name="chevron" size={16} />
+        </span>
       </Link>
 
 
