@@ -194,7 +194,7 @@ export default function MePage() {
                   alt={p.title}
                 />
                 <div className="hit-body">
-                  <span className="post-tag">{p.tag}</span>
+                  {/* 他の画面と同じく、タイトル上のキーワードは出さない */}
                   <div className="post-title">{p.title}</div>
                   {isMine && (
                     <div className="reasons">
