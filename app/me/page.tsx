@@ -15,6 +15,8 @@ import {
   resetAll,
 } from '@/lib/points';
 import { UserPost, getUserPosts, removeUserPost } from '@/lib/userPosts';
+import { getUnreadCount } from '@/lib/notifications';
+import { DEFAULT_SETTINGS, Settings, getSettings } from '@/lib/settings';
 
 export default function MePage() {
   const [balance, setBalance] = useState<number | null>(null);
@@ -23,12 +25,16 @@ export default function MePage() {
   const [mine, setMine] = useState<UserPost[]>([]);
   const [tab, setTab] = useState<'mine' | 'read'>('mine');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
 
   const load = () => {
     setBalance(getBalance());
     setUnlocked(getUnlocked());
     setReacted(getReacted());
     setMine(getUserPosts());
+    setUnread(getUnreadCount());
+    setSettings(getSettings());
   };
 
   useEffect(load, []);
@@ -66,20 +72,21 @@ export default function MePage() {
             <>
               <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />
               <div className="menu" role="menu">
-                <button className="menu-item" role="menuitem" disabled>
+                <Link className="menu-item" role="menuitem" href="/settings">
                   アカウント設定
-                </button>
-                <button className="menu-item" role="menuitem" disabled>
+                </Link>
+                <Link className="menu-item" role="menuitem" href="/notifications">
                   通知
-                </button>
-                <button className="menu-item" role="menuitem" disabled>
+                  {unread > 0 && <span className="menu-badge">{unread}</span>}
+                </Link>
+                <Link className="menu-item" role="menuitem" href="/help">
                   ヘルプ
-                </button>
+                </Link>
                 <button className="menu-item menu-danger" role="menuitem" disabled>
                   ログアウト
                 </button>
                 <p className="menu-note">
-                  ログインなしで使えるため、いずれも現在は無効です。
+                  ログインなしで使えるため、ログアウトはありません。
                 </p>
               </div>
             </>
@@ -91,7 +98,7 @@ export default function MePage() {
         <div className="profile-row">
           <div className="avatar">京</div>
           <div style={{ flex: 1 }}>
-            <div className="profile-name">ゲスト</div>
+            <div className="profile-name">{settings.displayName || 'ゲスト'}</div>
             <div className="hint">ログインなしで使えます</div>
           </div>
           <span className="pt-badge">

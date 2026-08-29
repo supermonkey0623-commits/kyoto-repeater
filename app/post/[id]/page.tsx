@@ -11,6 +11,8 @@ import Photo from '@/components/Photo';
 import PointBadge from '@/components/PointBadge';
 import { Post, getPost } from '@/lib/posts';
 import { getUserPosts } from '@/lib/userPosts';
+import { notify } from '@/lib/notifications';
+import { getSettings } from '@/lib/settings';
 import {
   getBalance,
   getReacted,
@@ -71,6 +73,18 @@ export default function PostDetailPage() {
     const res = react(post.id);
     setBalance(res.balance);
     setReacted(res.reacted);
+
+    // 自分の投稿に反応が付いたら通知する。
+    // 他人からの反応はアカウントが要るので、いまはこの端末で起きた分だけ。
+    const isMine = getUserPosts().some((p) => p.id === post.id);
+    if (isMine && getSettings().notifyReaction) {
+      notify({
+        kind: 'reaction',
+        title: '「✨新しい」が届きました',
+        body: post.title,
+        postId: post.id,
+      });
+    }
   };
 
   const hasReacted = reacted.includes(post.id);

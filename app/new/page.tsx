@@ -12,6 +12,7 @@ import { CATEGORIES, CategoryId } from '@/lib/data';
 import { GeoPoint, mapsUrl, readGeoFromFile } from '@/lib/exif';
 import { fileToThumbnail } from '@/lib/image';
 import { addUserPost } from '@/lib/userPosts';
+import { notify } from '@/lib/notifications';
 
 const WHO = [
   { value: 'solo', label: 'ひとり' },
@@ -175,6 +176,12 @@ export default function NewPostPage() {
       setError('写真が大きくて保存しきれませんでした。本文だけ保存しています。');
       return;
     }
+    notify({
+      kind: 'posted',
+      title: '投稿を公開しました',
+      body: title.trim(),
+      postId: id,
+    });
     router.push(`/post/${id}`);
   };
 

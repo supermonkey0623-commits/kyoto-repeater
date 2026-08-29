@@ -961,6 +961,166 @@ body {
   margin: 6px 12px 4px;
 }
 
+.menu-badge {
+  float: right;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  min-width: 19px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---- 通知 ---- */
+.noti {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-bottom: 9px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.noti-icon {
+  font-size: 17px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.noti-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.noti-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.noti-text {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.noti-time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.noti-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ---- ヘルプ（よくある質問） ---- */
+.qa {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.qa-item + .qa-item {
+  border-top: 1px solid var(--border);
+}
+
+.qa-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 15px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.qa-mark {
+  color: var(--accent);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.qa-a {
+  margin: 0;
+  padding: 0 14px 15px;
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+/* ---- 設定 ---- */
+.settings-head {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 28px 0 10px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-bottom: 9px;
+  cursor: pointer;
+}
+
+.toggle-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.toggle-note {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.toggle-row input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.saved-flag {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.btn-ghost.danger {
+  color: #b3423a;
+}
+
 /* ---- プロフィール ---- */
 .profile {
   background: var(--surface);

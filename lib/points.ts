@@ -124,6 +124,8 @@ export function toggleSaved(id: string): string[] {
 export function resetAll(): void {
   try {
     Object.values(KEYS).forEach((k) => window.localStorage.removeItem(k));
+    // 通知もこの端末の記録なので一緒に消す
+    window.localStorage.removeItem('kyoto-repeater/notifications');
   } catch {
     // 失敗しても支障はない
   }
