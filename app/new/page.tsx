@@ -49,8 +49,38 @@ export default function NewPostPage() {
 
   const [photo, setPhoto] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoPoint | null>(null);
+  const [geoSource, setGeoSource] = useState<'exif' | 'device' | null>(null);
   const [geoChecked, setGeoChecked] = useState(false);
   const [reading, setReading] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState('');
+
+  // EXIFが無い写真は多い（SNS・Web経由・スクリーンショットでは削除される）。
+  // 撮ってすぐ投稿するなら現在地＝撮影地なので、代わりに使えるようにする。
+  const useCurrentLocation = () => {
+    if (!('geolocation' in navigator)) {
+      setLocateError('この端末では現在地を取得できません。');
+      return;
+    }
+    setLocating(true);
+    setLocateError('');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGeoSource('device');
+        setLocating(false);
+      },
+      (err) => {
+        setLocating(false);
+        setLocateError(
+          err.code === err.PERMISSION_DENIED
+            ? '位置情報の利用が許可されませんでした。場所は手入力してください。'
+            : '現在地を取得できませんでした。場所は手入力してください。'
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const [title, setTitle] = useState('');
   const [place, setPlace] = useState('');
@@ -75,7 +105,9 @@ export default function NewPostPage() {
     ]);
     setPhoto(thumb);
     setGeo(point);
+    setGeoSource(point ? 'exif' : null);
     setGeoChecked(true);
+    setLocateError('');
     setReading(false);
   };
 
@@ -137,7 +169,7 @@ export default function NewPostPage() {
         {photo ? (
           <>
             <Photo id="preview" src={photo} alt="選んだ写真" ratio="wide" />
-            <button className="btn-sm" onClick={() => { setPhoto(null); setGeo(null); setGeoChecked(false); }}>
+            <button className="btn-sm" onClick={() => { setPhoto(null); setGeo(null); setGeoSource(null); setGeoChecked(false); setLocateError(''); }}>
               写真を変える
             </button>
           </>
@@ -178,7 +210,10 @@ export default function NewPostPage() {
           <div className={geo ? 'geo-ok' : 'geo-none'}>
             {geo ? (
               <>
-                撮影地点を取得しました（{geo.lat.toFixed(5)}, {geo.lng.toFixed(5)}）
+                {geoSource === 'exif'
+                  ? '写真から撮影地点を取得しました'
+                  : '現在地を使いました'}
+                （{geo.lat.toFixed(5)}, {geo.lng.toFixed(5)}）
                 <br />
                 <a
                   className="map-link"
@@ -190,7 +225,23 @@ export default function NewPostPage() {
                 </a>
               </>
             ) : (
-              'この写真に位置情報はありませんでした。場所は手入力してください。'
+              <>
+                この写真に位置情報がありません。
+                <br />
+                （SNSやWeb経由の画像は、送信時にEXIFが削除されます）
+                <br />
+                <button
+                  className="btn-sm"
+                  style={{ marginTop: 8 }}
+                  disabled={locating}
+                  onClick={useCurrentLocation}
+                >
+                  {locating ? '取得中…' : '📍 いまいる場所を使う'}
+                </button>
+                {locateError && (
+                  <div style={{ marginTop: 6 }}>{locateError}</div>
+                )}
+              </>
             )}
           </div>
         )}
