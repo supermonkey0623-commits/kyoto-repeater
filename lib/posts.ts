@@ -23,6 +23,19 @@ export type Post = {
   place?: string;
   /** Googleマップ検索に渡す文字列。未設定なら place をそのまま使う */
   mapQuery?: string;
+
+  // ---- かんたん検索の条件に使う属性 ----
+  /** 屋内か。雨の日の絞り込みに使う */
+  isIndoor: boolean;
+  /** 滞在時間の目安（分）。空き時間との照合に使う */
+  minutes: number;
+  /** 予算感 0=かからない / 1=〜1000円 / 2=1000円以上 */
+  budget: 0 | 1 | 2;
+  /** おすすめの時間帯 */
+  timeOfDay: ('morning' | 'day' | 'night')[];
+  /** 向いている人数 */
+  who: ('solo' | 'pair' | 'group')[];
+
   /** 閲覧に必要なポイント */
   costPt: number;
   /** public/photos/<id>.jpg を置いたら true */
@@ -42,6 +55,11 @@ export const POSTS: Post[] = [
     body: '同じ道とは思えないくらい人がいませんでした。石畳が濡れていて、軒先の灯りがまだ点いている時間。昼に来たことのある場所でも、この時間だけは別の街に見えます。',
     categories: ['quiet', 'photo'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 30,
+    budget: 0,
+    timeOfDay: ['morning'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -56,6 +74,11 @@ export const POSTS: Post[] = [
     body: '表からは中が見えません。飛び石の先に建物が続いていて、雨の日は石が濡れていい色になります。知らないと通り過ぎてしまう入口。',
     categories: ['quiet', 'culture'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 20,
+    budget: 0,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -70,6 +93,11 @@ export const POSTS: Post[] = [
     body: '橋のあたりは人だらけですが、少し上流に歩くと静かになります。日が沈む方向に山が重なって、水面に色が乗る時間帯がいちばんきれいでした。',
     categories: ['nature', 'photo'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 45,
+    budget: 0,
+    timeOfDay: ['day'],
+    who: ['pair','group'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -84,6 +112,11 @@ export const POSTS: Post[] = [
     body: '有名な庭園のような整いかたではないけれど、その分ずっと座っていられます。松と飛び石だけの広い庭で、聞こえるのは風の音だけでした。',
     categories: ['quiet', 'nature', 'culture'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 60,
+    budget: 2,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -98,6 +131,11 @@ export const POSTS: Post[] = [
     body: '観光地ではありません。地元の人が散歩しているだけの場所です。予定を詰めすぎた日に、ここに座って何もしない時間がいちばんよかった。',
     categories: ['quiet', 'nature'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 30,
+    budget: 0,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -112,6 +150,11 @@ export const POSTS: Post[] = [
     body: '普通の建物の一階が展示室になっています。開いているかどうかは暖簾が出ているかで分かる。展示が入れ替わるので、次に来たときも寄りたい場所。',
     categories: ['culture', 'photo'],
     author: 'チーム投稿',
+    isIndoor: true,
+    minutes: 30,
+    budget: 0,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -126,6 +169,11 @@ export const POSTS: Post[] = [
     body: '昼間は人が多い道でも、夜になると街灯だけになります。上りきったところで振り返ると、灯りが一列に並んで見えました。',
     categories: ['night', 'photo'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 60,
+    budget: 0,
+    timeOfDay: ['night'],
+    who: ['pair','group'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -140,6 +188,11 @@ export const POSTS: Post[] = [
     body: '目的地までの通り道でしかないのですが、ここを歩く時間がいちばん記憶に残りました。片側が苔むした石垣で、雨上がりが特にきれいです。',
     categories: ['nature', 'quiet', 'photo'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 30,
+    budget: 1,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -154,6 +207,11 @@ export const POSTS: Post[] = [
     body: '観光客はまずいません。一人で入っても浮かない空気があって、遅くなった日の逃げ場になります。看板が小さいので、知らないと気づかない。',
     categories: ['night', 'food'],
     author: 'チーム投稿',
+    isIndoor: true,
+    minutes: 60,
+    budget: 2,
+    timeOfDay: ['night'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -168,6 +226,11 @@ export const POSTS: Post[] = [
     body: '間口の狭い店ですが、中に入ると壁一面が棚になっています。目的なく入って、気づいたら一時間いました。静かなので長居できます。',
     categories: ['quiet', 'culture'],
     author: 'チーム投稿',
+    isIndoor: true,
+    minutes: 45,
+    budget: 1,
+    timeOfDay: ['day'],
+    who: ['solo'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -182,6 +245,11 @@ export const POSTS: Post[] = [
     body: '観光地から少し離れると、こういう店が普通にあります。地元の人しかいませんでした。値段も観光地価格ではないので、旅の途中の食事はこのあたりで。',
     categories: ['food'],
     author: 'チーム投稿',
+    isIndoor: true,
+    minutes: 45,
+    budget: 1,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',
@@ -196,6 +264,11 @@ export const POSTS: Post[] = [
     body: '一面の苔に、砂利の道が一本だけ通っています。5分で歩き終わってしまうけれど、その5分のために来る価値がありました。雨上がりがいちばんきれい。',
     categories: ['nature', 'quiet', 'photo'],
     author: 'チーム投稿',
+    isIndoor: false,
+    minutes: 30,
+    budget: 1,
+    timeOfDay: ['day'],
+    who: ['solo','pair'],
     costPt: 1,
     hasPhoto: true,
     photoKind: 'real',

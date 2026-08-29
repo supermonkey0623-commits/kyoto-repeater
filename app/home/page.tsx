@@ -4,6 +4,7 @@
 // サムネには人気の数字（いいね数）も場所も出さない。
 // 場所は投稿を開いてから見せる（それがポイントを払って得られるもの）。
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import PostCard from '@/components/PostCard';
 import PointBadge from '@/components/PointBadge';
@@ -42,6 +43,13 @@ export default function HomePage() {
         </div>
         <PointBadge />
       </header>
+
+      {/* 上のタグ行はかんたん検索の入口。条件を選んで提案を受け取る */}
+      <Link href="/search" className="search-entry">
+        <span className="search-icon">🔍</span>
+        <span className="search-text">気分・天気・空き時間から探す</span>
+        <span className="search-go">›</span>
+      </Link>
 
       <div className="chips">
         <button
