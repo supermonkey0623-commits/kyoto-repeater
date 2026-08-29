@@ -96,14 +96,17 @@ export default function PostDetailPage() {
         <>
           <p className="detail-body">{post.body}</p>
 
-          {/* 払った理由をここで回収する */}
-          <div className="contrast">
-            この場所を知っているのは {post.reviewCount}人
-            <strong>
-              定番観光地{FAMOUS_AVG_COUNT}か所の平均は{' '}
-              {FAMOUS_AVG.toLocaleString()}人
-            </strong>
-          </div>
+          {/* 払った理由をここで回収する。
+              確認していない口コミ件数は出さない（証拠の捏造になるため） */}
+          {post.reviewVerified && (
+            <div className="contrast">
+              この場所を知っているのは {post.reviewCount}人
+              <strong>
+                定番観光地{FAMOUS_AVG_COUNT}か所の平均は{' '}
+                {FAMOUS_AVG.toLocaleString()}人
+              </strong>
+            </div>
+          )}
 
           <button
             className="btn"

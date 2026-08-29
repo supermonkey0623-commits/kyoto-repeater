@@ -27,8 +27,11 @@ export default function HomePage() {
     [category]
   );
 
-  const avgReviews = posts.length
-    ? Math.round(posts.reduce((s, p) => s + p.reviewCount, 0) / posts.length)
+  // 実データで確認できた投稿だけで平均を出す。
+  // 未確認の数字を混ぜると、根拠として提示している数値が嘘になる。
+  const verified = posts.filter((p) => p.reviewVerified);
+  const avgReviews = verified.length
+    ? Math.round(verified.reduce((s, p) => s + p.reviewCount, 0) / verified.length)
     : 0;
 
   return (
@@ -67,10 +70,11 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* 証拠はここに1回だけ。カードには出さない */}
-      {posts.length > 0 && (
+      {/* 証拠はここに1回だけ。カードには出さない。
+          口コミ件数を実データで確認できた投稿が無い間は表示しない */}
+      {verified.length > 0 && (
         <p className="evidence">
-          この{posts.length}件は、定番観光地{FAMOUS_AVG_COUNT}か所の平均{' '}
+          この{verified.length}件は、定番観光地{FAMOUS_AVG_COUNT}か所の平均{' '}
           <strong>{FAMOUS_AVG.toLocaleString()}人</strong> に対して、
           平均 <strong>{avgReviews}人</strong> しか知りません。
         </p>
