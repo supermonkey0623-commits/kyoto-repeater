@@ -289,39 +289,50 @@ export default function NewPostPage() {
       </div>
 
       <div className="field">
-        <div className="field-label">タイトル（必須）</div>
+        <div className="field-label">タイトル</div>
+        <p className="hint" style={{ marginTop: 0, marginBottom: 9 }}>
+          場所の名前ではなく、そこで何をしたかを書くと伝わります
+        </p>
         <input
           className="input"
+          maxLength={40}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="例：静かな路地裏の古民家カフェ"
+          placeholder="朝いちばんに石畳を歩く"
         />
+        <p className="field-count">{title.length} / 40</p>
       </div>
 
       <div className="field">
         <div className="field-label">場所</div>
+        <p className="hint" style={{ marginTop: 0, marginBottom: 9 }}>
+          読んだ人が実際に行けるように、施設名か住所まで
+        </p>
         <input
           className="input"
           value={place}
           onChange={(e) => setPlace(e.target.value)}
-          placeholder={resolving ? '写真の位置から取得中…' : '例：京都市左京区岡崎周辺'}
+          placeholder={resolving ? '写真から探しています…' : '京都市左京区 ○○'}
         />
         {resolving && <p className="hint">写真の位置情報から場所を調べています…</p>}
         {!resolving && geo && place && (
-          <p className="hint">写真の位置から自動入力しました。直せます。</p>
+          <p className="hint">写真の位置から自動で入れました。直せます。</p>
         )}
       </div>
 
       <div className="field">
-        <div className="field-label">ひとこと（必須）</div>
+        <div className="field-label">ひとこと</div>
+        <p className="hint" style={{ marginTop: 0, marginBottom: 9 }}>
+          時間帯・混み具合・良かった理由があると、行く人の役に立ちます
+        </p>
         <textarea
           className="textarea"
           maxLength={140}
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="例：地元の人しか知らない落ち着ける空間でした。"
+          placeholder="朝7時前ならほとんど人がいません。石畳が濡れている時間がいちばんきれいでした。"
         />
-        <p className="hint" style={{ textAlign: 'right' }}>{body.length}/140</p>
+        <p className="field-count">{body.length} / 140</p>
       </div>
 
       <div className="field">
@@ -400,6 +411,11 @@ export default function NewPostPage() {
       <button className="btn" disabled={!canSubmit || sending} onClick={submit}>
         {sending ? '共有しています…' : '投稿する'}
       </button>
+      {!canSubmit && !sending && (
+        <p className="hint" style={{ textAlign: 'center' }}>
+          タイトル・ひとこと・気分をひとつ以上、入れると投稿できます
+        </p>
+      )}
 
     </main>
   );

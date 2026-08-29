@@ -167,23 +167,25 @@ export default function PostDetailPage() {
           )}
         </>
       ) : (
-        <div className="paywall">
-          <p className="paywall-lead">
-            この続きは <strong>{post.costPt}pt</strong> で読めます
-          </p>
-          <p className="hint">
-            正確な場所（Googleマップつき）と、実際に行った人の言葉が読めます。
-          </p>
-          <button className="btn" onClick={handleUnlock}>
-            {post.costPt}pt を使って読む
-          </button>
-          {shortfall && (
-            <p className="hint" style={{ color: '#b34' }}>
-              ポイントが足りません。自分の投稿が「役に立った」と言われると貯まります。
+        <>
+          {/* 本文を途中まで見せて断ち切る。続きがあることを文章そのもので伝える */}
+          <p className="paywall-preview">{post.body}</p>
+
+          <div className="paywall">
+            <p className="paywall-lead">
+              この続きは <strong>{post.costPt}pt</strong> で読めます
             </p>
-          )}
-          <p className="hint">残高 {balance === null ? '—' : balance}pt</p>
-        </div>
+            <button className="btn" onClick={handleUnlock}>
+              {post.costPt}pt を使って読む
+            </button>
+            {shortfall && (
+              <p className="hint" style={{ color: 'var(--danger)' }}>
+                ポイントが足りません。自分の投稿が「役に立った」と言われると貯まります。
+              </p>
+            )}
+            <p className="hint">残高 {balance === null ? '—' : balance}pt</p>
+          </div>
+        </>
       )}
 
     </main>

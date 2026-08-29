@@ -16,15 +16,29 @@ export type CategoryId =
   | 'food'
   | 'nature'
   | 'night'
-  | 'culture';
+  | 'culture'
+  | 'walk'
+  | 'water'
+  | 'view'
+  | 'book'
+  | 'craft'
+  | 'shop';
 
+// 追加したカテゴリは、既存の投稿にも割り当ててある（lib/posts.ts）。
+// 空のカテゴリを置くと、タップしても0件で「壊れている」ように見えるため。
 export const CATEGORIES: { id: CategoryId; label: string }[] = [
   { id: 'quiet', label: '静かに過ごす' },
+  { id: 'walk', label: '歩く' },
   { id: 'photo', label: '写真を撮る' },
-  { id: 'food', label: '食べる' },
+  { id: 'view', label: '見晴らし' },
   { id: 'nature', label: '自然' },
+  { id: 'water', label: '水辺' },
+  { id: 'food', label: '食べる' },
   { id: 'night', label: '夜に楽しむ' },
   { id: 'culture', label: '文化に触れる' },
+  { id: 'craft', label: '手仕事' },
+  { id: 'book', label: '本' },
+  { id: 'shop', label: '買いもの' },
 ];
 
 export type Spot = {
