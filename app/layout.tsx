@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'よりみち',
   description:
     '定番を回り尽くした人へ。写真で出会って、まだ知らない京都へ寄り道する。',
+  manifest: '/manifest.webmanifest',
+  // ホーム画面から開いたときにブラウザの枠を出さない
+  appleWebApp: { capable: true, title: 'よりみち', statusBarStyle: 'default' },
 };
 
 export const viewport: Viewport = {
